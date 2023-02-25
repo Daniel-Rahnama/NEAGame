@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20.0)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_BUILD_TYPE RELEASE)
+set(CMAKE_BUILD_TYPE DEBUG)
 
 set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
 set(CMAKE_PREFIX_PATH "C:/vcpkg/installed/x64-mingw-dynamic/share")
@@ -12,7 +12,11 @@ file(GLOB src src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${src})
 
-set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
+
+target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
 
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME}

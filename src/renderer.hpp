@@ -2,10 +2,14 @@
 #define RENDERER_HPP
 
 #include "SDL2/SDL.h"
+#include "SDL2/SDL_ttf.h"
+#include "SDL2/SDL_image.h"
+
+#include <string>
 
 class Renderer {
 public:
-    Renderer(size_t, size_t);
+    Renderer(size_t, size_t, const char*);
     ~Renderer();
     void Render();
 
@@ -15,6 +19,8 @@ private:
 
     size_t screen_width;
     size_t screen_height;
+
+    std::string resources;
 };
 
 #endif /* RENDERER_HPP */

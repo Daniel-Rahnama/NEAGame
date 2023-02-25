@@ -1,7 +1,10 @@
 #include "game.hpp"
 
-Game::Game(size_t width, size_t height) : game_width(width), game_height(height) {
+#include <thread>
 
+Game::Game(size_t width, size_t height, const char* resources) : game_width(width), game_height(height), resources(resources) {
+    Mixer m(resources);
+    m.Play();
 }
 
 void Game::Run(const int& Target_Frame_Duration, Renderer& renderer, Controller& controller) {
