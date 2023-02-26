@@ -11,7 +11,7 @@ Renderer::Renderer(size_t width, size_t height, const char* resources) : screen_
         throw TTF_GetError();
     }
 
-    window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, screen_width, screen_height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Game", NULL, NULL, NULL, NULL, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
 
     if (!window) {
         throw "Unable to create SDL Window";
@@ -32,6 +32,7 @@ Renderer::~Renderer() {
 
 void Renderer::Render() {
     SDL_RenderClear(renderer);
+    
     SDL_Surface* image = SDL_LoadBMP((resources + "/sprites/map.bmp").c_str());
     SDL_SetWindowIcon(window, image);
     SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, image);
