@@ -2,6 +2,7 @@
 #define APPDATA_HPP
 
 #include <fstream>
+#include <sstream>
 
 class AppData {
 public:

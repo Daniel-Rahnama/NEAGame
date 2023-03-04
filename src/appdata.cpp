@@ -3,10 +3,11 @@
 #include <filesystem>
 #include <Windows.h>
 #include <string>
+#include <iostream>
 
 AppData::AppData() {
-    if (std::filesystem::is_directory("%appdata%/NEAGame/")) { 
-        file.open("%appdata%/NEAGame/settings.txt");
+    if (std::filesystem::is_directory("C:/Users/Daniel/AppData/Roaming/NEAGame/")) { 
+        file.open("C:/Users/Daniel/AppData/Roaming/NEAGame/settings.txt");
         width = FindWidth();
         height = FindHeight();
         resources = FindResources();
@@ -30,12 +31,13 @@ int AppData::Width() {
 
 void AppData::Width(int width) {
     this->width = width;
-    std::stringstream _file << file.rdbuf();
+    std::stringstream _file;
+    _file << file.rdbuf();
     std::string text = _file.str();
     std::string search = "width=";
     std::string replace = "width=" + width;
     size_t index = text.find(search);
-    text.replace(index, string(search).length(), replace);
+    text.replace(index, std::string(search).length(), replace);
     file << text;
 }
 
@@ -45,18 +47,20 @@ int AppData::Height() {
 
 void AppData::Height(int height) {
     this->height = height;
-    std::stringstream _file << file.rdbuf();
+    std::stringstream _file;
+    _file << file.rdbuf();
     std::string text = _file.str();
     std::string search = "height=";
     std::string replace = "height=" + height;
     size_t index = text.find(search);
-    text.replace(index, string(search).length(), replace);
+    text.replace(index, std::string(search).length(), replace);
     file << text;
+    std::cout << text;
 }
 
 void AppData::CreateSettingsFile() {
-    std::filesystem::create_directory("%appdata%/NEAGame/");
-    file = std::fstream("%appdata%/NEAGame/settings.txt");
+    std::filesystem::create_directory("C:/Users/Daniel/AppData/Roaming/NEAGame/");
+    file.open("C:/Users/Daniel/AppData/Roaming/NEAGame/settings.txt", std::fstream::in | std::fstream::out | std::fstream::trunc);
 
     width = GetSystemMetrics(SM_CXSCREEN);
     height = GetSystemMetrics(SM_CYSCREEN);
@@ -65,8 +69,8 @@ void AppData::CreateSettingsFile() {
     else if (std::filesystem::is_directory("../resources")) resources = "../resources";
     else throw "Unable to find resources directory.";
 
-    file.write("width=" + width +
-        "\nheight=" + height +
+    file << ("width=" + std::to_string(width) +
+        "\nheight=" + std::to_string(height) +
         "\nresources=" + resources);
 }
 
@@ -75,7 +79,7 @@ unsigned int AppData::FindWidth() {
     while (line.find("width=") != std::string::npos) {
         std::getline(file, line);
     }
-    return line.substr(1, line.find("="));
+    return std::stoi(line.substr(1, line.find("=")));
 }
 
 unsigned int AppData::FindHeight() {
@@ -83,7 +87,7 @@ unsigned int AppData::FindHeight() {
     while (line.find("height=") != std::string::npos) {
         std::getline(file, line);
     }
-    return line.substr(1, line.find("="));
+    return std::stoi(line.substr(1, line.find("=")));
 }
 
 const char* AppData::FindResources() {
@@ -91,5 +95,5 @@ const char* AppData::FindResources() {
     while (line.find("resources=") != std::string::npos) {
         std::getline(file, line);
     }
-    return line.substr(1, line.find("="));
+    return line.substr(1, line.find("=")).c_str();
 }

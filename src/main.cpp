@@ -10,9 +10,9 @@
 int main(int argc, char *argv[]) {
     try {
         AppData appdata;
-        Renderer renderer(appdata.width(), appdata.height(), appdata.resources());
+        Renderer renderer(appdata.Width(), appdata.Height(), appdata.Resources());
         Controller controller;
-        Game(appdata.width(), appdata.height(), appdata.resources()).Run(target_frame_duration, renderer, controller);
+        Game(appdata.Width(), appdata.Height(), appdata.Resources()).Run(target_frame_duration, renderer, controller);
     } catch (const char* exception)  {
         MessageBoxA(NULL, exception, "Exception", MB_ICONERROR | MB_OK);
     }
