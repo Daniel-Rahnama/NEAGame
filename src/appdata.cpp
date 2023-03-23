@@ -2,17 +2,18 @@
 
 #include <filesystem>
 #include <Windows.h>
-#include <string>
+#include <cstring>
 #include <iostream>
 
 AppData::AppData() {
-    if (std::filesystem::is_directory("C:/Users/Daniel/AppData/Roaming/NEAGame/")) { 
+    if (std::filesystem::is_directory("C:/Users/Daniel/AppData/Roaming/NEAGame/")) {
         file.open("C:/Users/Daniel/AppData/Roaming/NEAGame/settings.txt");
         width = FindWidth();
         height = FindHeight();
         resources = FindResources();
-    }
-    else {
+        std::cout << resources << "2\n";
+        std::cout << Resources() << "4\n";
+    } else {
         CreateSettingsFile();
     }
 }
@@ -21,7 +22,8 @@ AppData::~AppData() {
     file.close();
 }
 
-const char* AppData::Resources() {
+std::string& AppData::Resources() {
+    std::cout << resources << "3\n";
     return resources;
 }
 
@@ -76,24 +78,27 @@ void AppData::CreateSettingsFile() {
 
 unsigned int AppData::FindWidth() {
     std::string line = "";
-    while (line.find("width=") != std::string::npos) {
+    while (line.find("width=") == std::string::npos) {
         std::getline(file, line);
     }
-    return std::stoi(line.substr(1, line.find("=")));
+    return std::stoi(line.substr(line.find("=")+1, line.length()));
 }
 
 unsigned int AppData::FindHeight() {
     std::string line = "";
-    while (line.find("height=") != std::string::npos) {
+    while (line.find("height=") == std::string::npos) {
         std::getline(file, line);
     }
-    return std::stoi(line.substr(1, line.find("=")));
+    return std::stoi(line.substr(line.find("=")+1, line.length()));
 }
 
-const char* AppData::FindResources() {
+std::string AppData::FindResources() {
     std::string line = "";
-    while (line.find("resources=") != std::string::npos) {
+    while (line.find("resources=") == std::string::npos) {
         std::getline(file, line);
     }
-    return line.substr(1, line.find("=")).c_str();
+
+    std::cout << line << "1\n";
+
+    return line.substr(line.find("=")+1, line.length()+1).c_str();
 }

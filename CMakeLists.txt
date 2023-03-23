@@ -16,8 +16,6 @@ if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
-target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
-
 find_package(SDL2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME}
     PRIVATE
@@ -36,3 +34,5 @@ target_link_libraries(${PROJECT_NAME} PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::S
 
 find_package(sdl2-gfx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2_gfx)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE pthread)

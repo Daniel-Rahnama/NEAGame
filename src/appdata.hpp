@@ -9,23 +9,25 @@ public:
     AppData();
     ~AppData();
 
-    const char* Resources();
+    std::string& Resources();
 
     int Width();
     void Width(int);
 
     int Height();
     void Height(int);
+
+
 private:
     void CreateSettingsFile();
     unsigned int FindWidth();
     unsigned int FindHeight();
-    const char* FindResources();
+    std::string FindResources();
 
     std::fstream file;
     unsigned int width;
     unsigned int height; 
-    const char* resources;
+    std::string resources;
 };
 
 #endif /* APPDATA_HPP */
