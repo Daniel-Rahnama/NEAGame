@@ -4,15 +4,22 @@
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
 
+#include "appdata.hpp"
+
 #include <string>
+#include <memory>
 
 class Mixer {
 public:
-    Mixer(std::string);
+    Mixer(const std::shared_ptr<AppData>&);
     ~Mixer();
     void Play();
 private:
-    std::string resources;
+    const std::shared_ptr<AppData>& appdata;
+
+    SDL_AudioSpec wavSpec;
+    Uint32 wavLength;
+    Uint8 *wavBuffer;
 };
 
 #endif /* MIXER_HPP */

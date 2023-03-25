@@ -48,7 +48,7 @@ const std::string& AppData::Resources() {
     return resources;
 }
 
-void AppData::Width(int width) {
+void AppData::Width(const int& width) {
     std::unique_lock<std::mutex> widthLock(widthGuard);
     std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
     
@@ -70,7 +70,7 @@ void AppData::Width(int width) {
     file << text;
 }
 
-void AppData::Height(int height) {
+void AppData::Height(const int& height) {
     std::unique_lock<std::mutex> heightLock(heightGuard);
     std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
 
@@ -92,7 +92,7 @@ void AppData::Height(int height) {
     file << text;
 }
 
-void AppData::TargetFPS(int targetFPS) {
+void AppData::TargetFPS(const int& targetFPS) {
     std::unique_lock<std::mutex> targetFPSLock(targetFPSGuard);
     std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
 

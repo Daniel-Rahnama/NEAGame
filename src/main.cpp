@@ -14,7 +14,8 @@ int main(int argc, char *argv[]) {
         const std::shared_ptr<AppData> appdata = std::make_shared<AppData>();
         const std::shared_ptr<Renderer> renderer = std::make_shared<Renderer>(appdata);
         const std::shared_ptr<Controller> controller = std::make_shared<Controller>();
-        Game(appdata).Run(renderer, controller);
+        const std::shared_ptr<Mixer> mixer = std::make_shared<Mixer>(appdata);
+        Game(appdata).Run(renderer, controller, mixer);
     } catch (const char* exception)  {
         MessageBoxA(NULL, exception, "Exception", MB_ICONERROR | MB_OK);
     }

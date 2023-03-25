@@ -14,7 +14,7 @@
 class Game {
 public:
     Game(const std::shared_ptr<AppData>&);
-    void Run(const std::shared_ptr<Renderer>&, const std::shared_ptr<Controller>&);
+    void Run(const std::shared_ptr<Renderer>&, const std::shared_ptr<Controller>&, const std::shared_ptr<Mixer>&);
     void Update(bool&);
 private:
     const std::shared_ptr<AppData>& appdata;

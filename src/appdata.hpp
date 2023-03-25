@@ -17,9 +17,9 @@ public:
     const unsigned int& TargetFPS();
     const std::string& Resources();
 
-    void Width(int);
-    void Height(int);
-    void TargetFPS(int);
+    void Width(const int&);
+    void Height(const int&);
+    void TargetFPS(const int&);
 
 private:
     void CreateSettingsFile();
