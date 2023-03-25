@@ -7,14 +7,14 @@
 
 #include <windows.h>
 #include <iostream>
+#include <memory>
 
 int main(int argc, char *argv[]) {
     try {
-        AppData* appdata = new AppData;
-        std::cout << appdata->Resources() << "F\n";
-        Renderer renderer(appdata->Width(), appdata->Height(), appdata->Resources().c_str());
-        Controller controller;
-        Game(appdata->Width(), appdata->Height(), appdata->Resources().c_str()).Run(target_frame_duration, renderer, controller);
+        const std::shared_ptr<AppData> appdata = std::make_shared<AppData>();
+        const std::shared_ptr<Renderer> renderer = std::make_shared<Renderer>(appdata);
+        const std::shared_ptr<Controller> controller = std::make_shared<Controller>();
+        Game(appdata).Run(renderer, controller);
     } catch (const char* exception)  {
         MessageBoxA(NULL, exception, "Exception", MB_ICONERROR | MB_OK);
     }

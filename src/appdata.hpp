@@ -3,31 +3,45 @@
 
 #include <fstream>
 #include <sstream>
+#include <mutex>
+#include <future>
+#include <vector>
 
 class AppData {
 public:
     AppData();
     ~AppData();
 
-    std::string& Resources();
+    const unsigned int& Width();
+    const unsigned int& Height();
+    const unsigned int& TargetFPS();
+    const std::string& Resources();
 
-    int Width();
     void Width(int);
-
-    int Height();
     void Height(int);
-
+    void TargetFPS(int);
 
 private:
     void CreateSettingsFile();
-    unsigned int FindWidth();
-    unsigned int FindHeight();
-    std::string FindResources();
+    void FindWidth();
+    void FindHeight();
+    void FindTargetFPS();
+    void FindResources();
 
     std::fstream file;
+    std::mutex fileGuard;
+
     unsigned int width;
-    unsigned int height; 
+    std::mutex widthGuard;
+
+    unsigned int height;
+    std::mutex heightGuard;
+
+    unsigned int targetFPS;
+    std::mutex targetFPSGuard;
+
     std::string resources;
+    std::mutex resourcesGuard;
 };
 
 #endif /* APPDATA_HPP */

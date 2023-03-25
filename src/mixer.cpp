@@ -1,6 +1,6 @@
 #include "mixer.hpp"
 
-Mixer::Mixer(const char* resources) : resources(resources) {
+Mixer::Mixer(std::string resources) : resources(resources) {
     if (SDL_INIT_AUDIO < 0) {
         throw "Unable to initialise SDL_AUDIO";
     }

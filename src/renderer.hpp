@@ -1,26 +1,27 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+#include "appdata.hpp"
+
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_image.h"
 
 #include <string>
+#include <memory>
 
 class Renderer {
 public:
-    Renderer(size_t, size_t, const char*);
+    Renderer(const std::shared_ptr<AppData>&);
     ~Renderer();
     void Render();
+    void UpdateWindowTitle(const int&);
 
 private:
     SDL_Window *window;
     SDL_Renderer *renderer;
 
-    size_t screen_width;
-    size_t screen_height;
-
-    std::string resources;
+    const std::shared_ptr<AppData>& appdata;
 };
 
 #endif /* RENDERER_HPP */

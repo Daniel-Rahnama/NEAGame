@@ -8,7 +8,7 @@
 
 class Mixer {
 public:
-    Mixer(const char*);
+    Mixer(std::string);
     ~Mixer();
     void Play();
 private:

@@ -1,7 +1,7 @@
 #include "renderer.hpp"
 #include <assert.h>
 
-Renderer::Renderer(size_t width, size_t height, const char* resources) : screen_width(width), screen_height(height), resources(resources) {
+Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
     
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         throw "Unable to initialise SDL";
@@ -33,13 +33,13 @@ Renderer::~Renderer() {
 void Renderer::Render() {
     SDL_RenderClear(renderer);
     
-    SDL_Surface* image = SDL_LoadBMP((resources + "/sprites/map.bmp").c_str());
+    SDL_Surface* image = SDL_LoadBMP((appdata->Resources() + "/sprites/map.bmp").c_str());
     SDL_SetWindowIcon(window, image);
     SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, image);
     SDL_Rect dstrect = { 336, 336, 128, 128 };
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 
-    TTF_Font* Arial = TTF_OpenFont((resources + "/fonts/arial.ttf").c_str(), 80);
+    TTF_Font* Arial = TTF_OpenFont((appdata->Resources() + "/fonts/arial.ttf").c_str(), 80);
     assert(Arial != NULL);
     SDL_Color White = {255, 255, 255};
     SDL_Surface* sText = TTF_RenderText_Solid(Arial, "Hello World", White);
@@ -51,4 +51,8 @@ void Renderer::Render() {
 
     SDL_FreeSurface(sText);
     SDL_DestroyTexture(tText);
+}
+
+void Renderer::UpdateWindowTitle(const int& FPS) {
+    
 }

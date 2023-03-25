@@ -6,18 +6,18 @@
 #include "renderer.hpp"
 #include "controller.hpp"
 #include "mixer.hpp"
+#include "appdata.hpp"
 
 #include <string>
+#include <memory>
 
 class Game {
 public:
-    Game(size_t, size_t, const char*);
-    void Run(const int&, Renderer&, Controller&);
+    Game(const std::shared_ptr<AppData>&);
+    void Run(const std::shared_ptr<Renderer>&, const std::shared_ptr<Controller>&);
     void Update(bool&);
 private:
-    size_t game_width;
-    size_t game_height;
-    std::string resources;
+    const std::shared_ptr<AppData>& appdata;
 };
 
 #endif /* GAME_HPP */
