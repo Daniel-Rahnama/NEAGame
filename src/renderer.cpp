@@ -1,5 +1,8 @@
 #include "renderer.hpp"
 #include <assert.h>
+#include <iostream>
+
+#include "entity.hpp"
 
 Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
     
@@ -11,7 +14,7 @@ Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
         throw TTF_GetError();
     }
 
-    window = SDL_CreateWindow("Game", NULL, NULL, NULL, NULL, SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Game", 0, 0, appdata->Width(), appdata->Height(), SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
 
     if (!window) {
         throw "Unable to create SDL Window";
@@ -23,6 +26,7 @@ Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
         throw "Unable to create SDL Renderer";
     }
 
+    SDL_SetWindowIcon(window, IMG_Load((appdata->Resources() + "/sprites/map.png").c_str()));
 }
 
 Renderer::~Renderer() {
@@ -30,29 +34,20 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-void Renderer::Render() {
+void Renderer::Render(std::vector<Entity*>& entities) {
     SDL_RenderClear(renderer);
-    
-    SDL_Surface* image = SDL_LoadBMP((appdata->Resources() + "/sprites/map.bmp").c_str());
-    SDL_SetWindowIcon(window, image);
-    SDL_Texture * texture = SDL_CreateTextureFromSurface(renderer, image);
-    SDL_Rect dstrect = { 336, 336, 128, 128 };
-    SDL_RenderCopy(renderer, texture, NULL, &dstrect);
 
-    TTF_Font* Arial = TTF_OpenFont((appdata->Resources() + "/fonts/arial.ttf").c_str(), 80);
-    assert(Arial != NULL);
-    SDL_Color White = {255, 255, 255};
-    SDL_Surface* sText = TTF_RenderText_Solid(Arial, "Hello World", White);
-    SDL_Texture* tText = SDL_CreateTextureFromSurface(renderer, sText);
-    SDL_Rect rText = {0, 0, 400, 100};
-    SDL_RenderCopy(renderer, tText, NULL, &rText);
+    for (Entity* e : entities) {
+        SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &e->DSTRect());
+    }
 
     SDL_RenderPresent(renderer);
-
-    SDL_FreeSurface(sText);
-    SDL_DestroyTexture(tText);
 }
 
 void Renderer::UpdateWindowTitle(const int& FPS) {
     
+}
+
+SDL_Texture* Renderer::CreateTexture(const std::string& spritesheet) {
+    return SDL_CreateTextureFromSurface(renderer, IMG_Load((appdata->Resources() + spritesheet).c_str()));
 }

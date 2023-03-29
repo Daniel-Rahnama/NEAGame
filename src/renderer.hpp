@@ -2,6 +2,7 @@
 #define RENDERER_HPP
 
 #include "appdata.hpp"
+#include "entity.hpp"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
@@ -9,13 +10,15 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 class Renderer {
 public:
     Renderer(const std::shared_ptr<AppData>&);
     ~Renderer();
-    void Render();
+    void Render(std::vector<Entity*>&);
     void UpdateWindowTitle(const int&);
+    SDL_Texture* CreateTexture(const std::string&);
 
 private:
     SDL_Window *window;
