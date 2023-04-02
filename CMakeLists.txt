@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE DEBUG)
 
 set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
@@ -34,5 +34,17 @@ target_link_libraries(${PROJECT_NAME} PRIVATE $<IF:$<TARGET_EXISTS:SDL2_mixer::S
 
 find_package(sdl2-gfx CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2_gfx)
+
+find_package(ZLIB REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)
+
+find_package(tinyxml2 CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
+
+find_package(tmxparser REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE tmxparser)
+
+find_package(wxWidgets CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE wx::core wx::base)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE pthread)

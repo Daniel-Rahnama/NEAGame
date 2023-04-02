@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "entity.hpp"
+#include "mob.hpp"
 
 Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
     
@@ -34,10 +35,10 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-void Renderer::Render(std::vector<Entity*>& entities) {
+void Renderer::Render(std::vector<Mob*>& entities) {
     SDL_RenderClear(renderer);
 
-    for (Entity* e : entities) {
+    for (Mob* e : entities) {
         SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &e->DSTRect());
     }
 

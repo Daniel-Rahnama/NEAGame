@@ -12,7 +12,7 @@ public:
     SDL_Texture*& Spritesheet();
     SDL_Rect& SRCRect();
     SDL_Rect& DSTRect();
-private:
+protected:
     SDL_Texture*& spritesheet;
     SDL_Rect srcrect; 
     SDL_Rect dstrect;

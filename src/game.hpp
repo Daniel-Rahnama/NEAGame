@@ -7,6 +7,7 @@
 #include "controller.hpp"
 #include "mixer.hpp"
 #include "appdata.hpp"
+#include "mob.hpp"
 
 #include <string>
 #include <memory>
@@ -15,7 +16,7 @@ class Game {
 public:
     Game(const std::shared_ptr<AppData>&);
     void Run(const std::shared_ptr<Renderer>&, const std::shared_ptr<Controller>&, const std::shared_ptr<Mixer>&);
-    void Update(bool&);
+    void Update(bool&, unsigned int&, Mob&);
 private:
     const std::shared_ptr<AppData>& appdata;
 };

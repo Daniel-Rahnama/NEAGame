@@ -5,6 +5,9 @@
 #include <vector>
 
 #include "entity.hpp"
+#include "mob.hpp"
+
+#include "Tmx.h"
 
 Game::Game(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
 
@@ -14,11 +17,11 @@ void Game::Run(const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<
 
     mixer->Play();
 
-    std::vector<Entity*> entities;
+    std::vector<Mob*> entities;
 
     SDL_Texture* t = renderer->CreateTexture("/sprites/c1.png");
 
-    Entity e(t, {64, 704, 64, 64}, {336, 336, 128, 128});
+    Mob e(t, {64, 640, 64, 64}, {336, 336, 128, 128});
 
     entities.emplace_back(&e);
 
@@ -36,18 +39,9 @@ void Game::Run(const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<
     while (running) {
         Frame_Start = SDL_GetTicks();
 
-        controller->HandleInput(running);
+        controller->HandleInput(running, e.direction);
 
-        Update(running);
-
-        if (!(Frame_Count % 5)) {
-            entities[0]->SRCRect().x += 64;
-            if (entities[0]->SRCRect().x >= 576) entities[0]->SRCRect().x = 64;
-        }
-
-        entities[0]->DSTRect().x += 4;
-        if (entities[0]->DSTRect().x > appdata->Width()) entities[0]->DSTRect().x = 0;
-
+        Update(running, Frame_Count, e);
 
         renderer->Render(entities);
 
@@ -69,6 +63,8 @@ void Game::Run(const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<
     }
 }
 
-void Game::Update(bool& running) {
-
+void Game::Update(bool& running, unsigned int& Frame_Count, Mob& entity) {
+    
+    if (!(Frame_Count % 5)) entity.UpdateAnimation(appdata);
+    else entity.Update(appdata);
 }
