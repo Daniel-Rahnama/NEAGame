@@ -7,26 +7,22 @@ void Mob::UpdateAnimation(const std::shared_ptr<AppData>& appdata) {
             srcrect.y = 640;
             break;
         case Direction::UP: 
-            MoveUp(appdata->Height());
-            if (srcrect.y != 512) srcrect.y = 512;
+            srcrect.y = 512;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
             break;
         case Direction::DOWN:
-            MoveDown(appdata->Height());
-            if (srcrect.y != 640) srcrect.y = 640;
+            srcrect.y = 640;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
             break;
         case Direction::LEFT:
-            MoveLeft(appdata->Width());
-            if (srcrect.y != 576) srcrect.y = 576;
+            srcrect.y = 576;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
             break;
         case Direction::RIGHT:
-            MoveRight(appdata->Width());
-            if (srcrect.y != 704) srcrect.y = 704;
+            srcrect.y = 704;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
             break;
@@ -35,7 +31,6 @@ void Mob::UpdateAnimation(const std::shared_ptr<AppData>& appdata) {
 
 void Mob::Update(const std::shared_ptr<AppData>& appdata) {
     switch(direction) {
-        case Direction::NONE: break;
         case Direction::UP: MoveUp(appdata->Height()); break;
         case Direction::DOWN: MoveDown(appdata->Height()); break;
         case Direction::LEFT: MoveLeft(appdata->Width()); break;

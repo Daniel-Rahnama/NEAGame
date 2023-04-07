@@ -3,14 +3,14 @@ cmake_minimum_required(VERSION 3.20.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_BUILD_TYPE DEBUG)
 
-set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
-set(CMAKE_PREFIX_PATH "C:/vcpkg/installed/x64-mingw-dynamic/share")
-
 project(Game)
 
 file(GLOB src src/*.cpp)
 
 add_executable(${PROJECT_NAME} ${src})
+
+set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_PREFIX_PATH "C:/vcpkg/installed/x64-mingw-dynamic/share")
 
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
     set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)

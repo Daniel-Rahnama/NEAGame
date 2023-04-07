@@ -12,17 +12,20 @@ public:
     AppData();
     ~AppData();
 
+    const bool& Fullscreen();
     const unsigned int& Width();
     const unsigned int& Height();
     const unsigned int& TargetFPS();
     const std::string& Resources();
 
+    void Fullscreen(const bool&);
     void Width(const int&);
     void Height(const int&);
     void TargetFPS(const int&);
 
-private:
+private:    
     void CreateSettingsFile();
+    void FindFullscreen();
     void FindWidth();
     void FindHeight();
     void FindTargetFPS();
@@ -30,6 +33,9 @@ private:
 
     std::fstream file;
     std::mutex fileGuard;
+
+    bool fullscreen;
+    std::mutex fullscreenGuard;
 
     unsigned int width;
     std::mutex widthGuard;

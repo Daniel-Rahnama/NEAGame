@@ -64,7 +64,7 @@ void Game::Run(const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<
 }
 
 void Game::Update(bool& running, unsigned int& Frame_Count, Mob& entity) {
-    
+
+    entity.Update(appdata);
     if (!(Frame_Count % 5)) entity.UpdateAnimation(appdata);
-    else entity.Update(appdata);
 }

@@ -8,14 +8,14 @@
 Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
     
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
-        throw "Unable to initialise SDL";
+        throw SDL_GetError();
     }
 
     if(TTF_Init() < 0) {
         throw TTF_GetError();
     }
 
-    window = SDL_CreateWindow("Game", 0, 0, appdata->Width(), appdata->Height(), SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_RESIZABLE | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, appdata->Width(), appdata->Height(), (appdata->Fullscreen() ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN) | SDL_WINDOW_SHOWN);
 
     if (!window) {
         throw "Unable to create SDL Window";
@@ -38,7 +38,7 @@ Renderer::~Renderer() {
 void Renderer::Render(std::vector<Mob*>& entities) {
     SDL_RenderClear(renderer);
 
-    for (Mob* e : entities) {
+    for (Mob*& e : entities) {
         SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &e->DSTRect());
     }
 
@@ -46,7 +46,7 @@ void Renderer::Render(std::vector<Mob*>& entities) {
 }
 
 void Renderer::UpdateWindowTitle(const int& FPS) {
-    
+    SDL_SetWindowTitle(window, ("Game - FPS: " + std::to_string(FPS)).c_str());
 }
 
 SDL_Texture* Renderer::CreateTexture(const std::string& spritesheet) {
