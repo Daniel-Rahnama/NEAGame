@@ -10,10 +10,12 @@ AppData::AppData() {
     appdata = getenv("APPDATA");
     path = appdata + "/NEAGame/settings.txt";
 
-    file.open(path, std::fstream::app);
+    file.open(path, std::fstream::in);
 
-    if (file) {
+    if (file.is_open()) {
         std::vector<std::future<void>> queue;
+
+        std::fstream::in;
 
         queue.emplace_back(std::async(&AppData::FindFullscreen, this));
         queue.emplace_back(std::async(&AppData::FindMusic, this));
@@ -35,10 +37,21 @@ AppData::AppData() {
     } else {
         CreateSettingsFile();
     }
+    file.close();
 }
 
 AppData::~AppData() {
-    std::scoped_lock<std::mutex> fileLock(fileGuard);
+    file.open(path, std::fstream::out | std::fstream::trunc);
+
+    file << (
+        "fullscreen=" + std::to_string(fullscreen) + "\n" +
+        "music=" + std::to_string(music) + "\n" +
+        "width=" + std::to_string(width) + "\n" +
+        "height=" + std::to_string(height) + "\n" +
+        "targetFPS=" + std::to_string(targetFPS) + "\n" +
+        "resources=" + resources
+    );
+
     file.close();
 }
 
@@ -73,8 +86,9 @@ const std::string& AppData::Resources() {
 }
 
 void AppData::Fullscreen(const bool& fullscreen) {
-    std::unique_lock<std::mutex> fullscreenLock(fullscreenGuard);
-    std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
+    std::scoped_lock<std::mutex> fullscreenLock(fullscreenGuard);
+    std::scoped_lock<std::mutex> widthLock(widthGuard);
+    std::scoped_lock<std::mutex> heightLock(heightGuard);
 
     this->fullscreen = fullscreen;
 
@@ -82,224 +96,36 @@ void AppData::Fullscreen(const bool& fullscreen) {
         width = GetSystemMetrics(SM_CXSCREEN);
         height = GetSystemMetrics(SM_CYSCREEN);
     } else {
+        std::scoped_lock<std::mutex> fileLock(fileGuard);
         FindWidth();
         FindHeight();
     }
-
-    std::stringstream _file;
-
-    file.clear();
-    file.seekg(0, std::ios::beg);
-
-    _file << file.rdbuf();
-
-    std::string text = _file.str();
-
-    std::string search = "fullscreen=";
-    std::string replace = "fullscreen=" + fullscreen;
-
-    size_t index = text.find(search);
-
-    file.seekg(0, std::ios::beg);
-
-    std::string line;
-
-    while (line.find(search) == std::string::npos) {
-        std::getline(file, line);
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    text.replace(index, line.length(), replace);
-
-    file.close();
-    file.open(path, std::fstream::trunc);
-
-    file << text;
-
-    file.close();
-    file.open(path, std::fstream::app);
 }
 
 void AppData::Music(const bool& music) {
-    std::unique_lock<std::mutex> musicLock(musicGuard);
-    std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
-
+    std::scoped_lock<std::mutex> musicLock(musicGuard);
     this->music = music;
-
-    std::stringstream _file;
-
-    file.clear();
-    file.seekg(0, std::ios::beg);
-
-    _file << file.rdbuf();
-
-    std::string text = _file.str();
-
-    std::string search = "music=";
-    std::string replace = "music=" + std::to_string(music);
-
-    size_t index = text.find(search);
-
-    file.seekg(0, std::ios::beg);
-
-    std::string line;
-
-    while (line.find(search) == std::string::npos) {
-        std::getline(file, line);
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    text.replace(index, line.length(), replace);
-
-    file.close();
-    file.open(path, std::fstream::trunc);
-
-    file << text;
-    
-    file.close();
-    file.open(path, std::fstream::app);
 }
 
 void AppData::Width(const int& width) {
-    std::unique_lock<std::mutex> widthLock(widthGuard);
-    std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
-    
+    std::scoped_lock<std::mutex> widthLock(widthGuard);    
     this->width = width;
-
-    std::stringstream _file;
-
-    file.clear();
-    file.seekg(0, std::ios::beg);
-
-    _file << file.rdbuf();
-
-    std::string text = _file.str();
-
-    std::string search = "width=";
-    std::string replace = "width=" + std::to_string(width);
-
-    size_t index = text.find(search);
-
-    file.seekg(0, std::ios::beg);
-
-    std::string line;
-
-    while (line.find(search) == std::string::npos) {
-        std::getline(file, line);
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    text.replace(index, line.length(), replace);
-
-    file.close();
-    file.open(path, std::fstream::trunc);
-
-    file << text;
-
-    file.close();
-    file.open(path, std::fstream::app);
 }
 
 void AppData::Height(const int& height) {
-    std::unique_lock<std::mutex> heightLock(heightGuard);
-    std::unique_lock<std::mutex> fileLock(fileGuard, std::defer_lock);
-
+    std::scoped_lock<std::mutex> heightLock(heightGuard);
     this->height = height;
-
-    std::stringstream _file;
-
-    file.clear();
-    file.seekg(0, std::ios::beg);
-
-    _file << file.rdbuf();
-
-    std::string text = _file.str();
-
-    std::string search = "height=";
-    std::string replace = "height=" + std::to_string(height);
-
-    size_t index = text.find(search);
-
-    file.seekg(0, std::ios::beg);
-
-    std::string line;
-
-    while (line.find(search) == std::string::npos) {
-        std::getline(file, line);
-    }
-
-    file.seekg(0, std::ios::beg);
-
-    text.replace(index, line.length(), replace);
-
-    file.close();
-    file.open(path, std::fstream::trunc);
-
-    file << text;
-
-    file.close();
-    file.open(path, std::fstream::app);
 }
 
 void AppData::TargetFPS(const int& targetFPS) {
     std::scoped_lock<std::mutex> targetFPSLock(targetFPSGuard);
-    std::scoped_lock<std::mutex> fileLock(fileGuard);
-
     this->targetFPS = targetFPS;
-
-    std::stringstream _file;
-
-    file.close();
-    file.open(path, std::fstream::app);
-
-    file.clear();
-    file.seekg(0, std::ios::beg);
-
-    _file << file.rdbuf();
-
-    std::string text = _file.str();
-
-    std::string search = "targetFPS=";
-    std::string replace = "targetFPS=" + std::to_string(targetFPS);
-
-    size_t index = text.find(search);
-
-    file.clear();
-    file.seekg(0, std::ios::beg);
-
-    std::string line;
-
-    std::cout << "reached 1";
-
-    while (line.find(search) == std::string::npos) {
-        std::getline(file, line);
-    }
-
-    std::cout << "reached 2";
-
-    file.seekg(0, std::ios::beg);
-
-    text.replace(index, line.length(), replace);
-
-    file.close();
-    file.open(path, std::fstream::trunc);
-
-    file << text;
-
-    file.close();
-    file.open(path, std::fstream::app);
 }
 
 void AppData::CreateSettingsFile() {
     if (!std::filesystem::is_directory(appdata + "/NEAGame/")) {
         std::filesystem::create_directory(appdata + "/NEAGame/");
     }
-
-    file.close();
-    file.open(path, std::fstream::trunc);
 
     fullscreen = true;
 
@@ -311,17 +137,6 @@ void AppData::CreateSettingsFile() {
     if (std::filesystem::is_directory("resources")) resources = "resources";
     else if (std::filesystem::is_directory("../resources")) resources = "../resources";
     else throw "Unable to find resources directory.";
-
-    file << (
-        "fullscreen=" + std::to_string(fullscreen) +
-        "\nmusic=" + std::to_string(music) +
-        "\nwidth=" + std::to_string(width) +
-        "\nheight=" + std::to_string(height) +
-        "\ntargetFPS=" + std::to_string(targetFPS) +
-        "\nresources=" + resources + "\n");
-
-    file.close();
-    file.open(path,  std::fstream::app);
 }
 
 void AppData::FindFullscreen() {
@@ -332,26 +147,20 @@ void AppData::FindFullscreen() {
     file.clear();
     file.seekg(0 , std::ios::beg);
 
-    while (line.find("fullscreen=") == std::string::npos) {
-        if (file.eof()) {
+    while (getline(file, line)) {
+        if (line.find("fullscreen=") != std::string::npos) {
+            fileLock.unlock();
             std::scoped_lock<std::mutex> fullscreenLock(fullscreenGuard);
-
-            fullscreen = true;
-
-            file.clear();
-            file.seekg(0 , std::ios::beg);
-
-            file << "fullscreen=" + std::to_string(fullscreen) + "\n";
+            fullscreen = std::stoi(line.substr(line.find("=")+1, line.length()));
             return;
-        } else {
-            std::getline(file, line);
         }
     }
 
     fileLock.unlock();
 
     std::scoped_lock<std::mutex> fullscreenLock(fullscreenGuard);
-    fullscreen = std::stoi(line.substr(line.find("=")+1, line.length()));
+
+    fullscreen = true;
 }
 
 void AppData::FindMusic() {
@@ -362,26 +171,20 @@ void AppData::FindMusic() {
     file.clear();
     file.seekg(0 , std::ios::beg);
 
-    while (line.find("music=") == std::string::npos) {
-        if (file.eof()) {
+    while (getline(file, line)) {
+        if (line.find("music=") != std::string::npos) {
+            fileLock.unlock();
             std::scoped_lock<std::mutex> musicLock(musicGuard);
-
-            music = true;
-
-            file.clear();
-            file.seekg(0 , std::ios::beg);
-
-            file << "music=" + std::to_string(music) + "\n";
+            music = std::stoi(line.substr(line.find("=")+1, line.length()));
             return;
-        } else {
-            std::getline(file, line);
         }
     }
 
     fileLock.unlock();
 
     std::scoped_lock<std::mutex> musicLock(musicGuard);
-    music = std::stoi(line.substr(line.find("=")+1, line.length()));
+
+    music = true;
 }
 
 void AppData::FindWidth() {
@@ -392,26 +195,20 @@ void AppData::FindWidth() {
     file.clear();
     file.seekg(0 , std::ios::beg);
 
-    while (line.find("width=") == std::string::npos) {
-        if (file.eof()) {
+    while (getline(file, line)) {
+        if (line.find("width=") != std::string::npos) {
+            fileLock.unlock();
             std::scoped_lock<std::mutex> widthLock(widthGuard);
-
-            width = GetSystemMetrics(SM_CXSCREEN);
-
-            file.clear();
-            file.seekg(0 , std::ios::beg);
-
-            file << "width=" + std::to_string(width) + "\n";
+            width = std::stoi(line.substr(line.find("=")+1, line.length()));
             return;
-        } else {
-            std::getline(file, line);
         }
     }
 
     fileLock.unlock();
 
     std::scoped_lock<std::mutex> widthLock(widthGuard);
-    width = std::stoi(line.substr(line.find("=")+1, line.length()));
+
+    width = GetSystemMetrics(SM_CXSCREEN);
 }
 
 void AppData::FindHeight() {
@@ -422,26 +219,20 @@ void AppData::FindHeight() {
     file.clear();
     file.seekg(0 , std::ios::beg);
 
-    while (line.find("height=") == std::string::npos) {
-        if (file.eof()) {
+    while (getline(file, line)) {
+        if (line.find("height=") != std::string::npos) {
+            fileLock.unlock();
             std::scoped_lock<std::mutex> heightLock(heightGuard);
-
-            height = GetSystemMetrics(SM_CYSCREEN);
-
-            file.clear();
-            file.seekg(0 , std::ios::beg);
-
-            file << "height=" + std::to_string(height) + "\n";
+            height = std::stoi(line.substr(line.find("=")+1, line.length()));
             return;
-        } else {
-            std::getline(file, line);
         }
     }
 
     fileLock.unlock();
 
     std::scoped_lock<std::mutex> heightLock(heightGuard);
-    height = std::stoi(line.substr(line.find("=")+1, line.length()));
+
+    height = GetSystemMetrics(SM_CYSCREEN);
 }
 
 void AppData::FindTargetFPS() {
@@ -452,26 +243,20 @@ void AppData::FindTargetFPS() {
     file.clear();
     file.seekg(0 , std::ios::beg);
 
-    while (line.find("targetFPS=") == std::string::npos) {
-        if (file.eof()) {
+    while (getline(file, line)) {
+        if (line.find("targetFPS=") != std::string::npos) {
+            fileLock.unlock();
             std::scoped_lock<std::mutex> targetFPSLock(targetFPSGuard);
-
-            targetFPS = 60;
-
-            file.clear();
-            file.seekg(0 , std::ios::beg);
-
-            file << "targetFPS=" + std::to_string(targetFPS) + "\n";
+            targetFPS = std::stoi(line.substr(line.find("=")+1, line.length()));
             return;
-        } else {
-            std::getline(file, line);
         }
     }
 
     fileLock.unlock();
 
     std::scoped_lock<std::mutex> targetFPSLock(targetFPSGuard);
-    targetFPS = std::stoi(line.substr(line.find("=")+1, line.length()));
+
+    targetFPS = 60;
 }
 
 void AppData::FindResources() {
@@ -482,26 +267,20 @@ void AppData::FindResources() {
     file.clear();
     file.seekg(0 , std::ios::beg);
 
-    while (line.find("resources=") == std::string::npos) {
-        if (file.eof()) {
+    while (getline(file, line)) {
+        if (line.find("resources=") != std::string::npos) {
+            fileLock.unlock();
             std::scoped_lock<std::mutex> resourcesLock(resourcesGuard);
-
-            if (std::filesystem::is_directory("resources")) resources = "resources";
-            else if (std::filesystem::is_directory("../resources")) resources = "../resources";
-            else throw "Unable to find resources directory.";
-
-            file.clear();
-            file.seekg(0 , std::ios::beg);
-
-            file << "resources=" + resources + "\n";
+            resources = line.substr(line.find("=")+1, line.length());
             return;
-        } else {
-            std::getline(file, line);
         }
     }
 
     fileLock.unlock();
-    
+
     std::scoped_lock<std::mutex> resourcesLock(resourcesGuard);
-    resources = line.substr(line.find("=")+1, line.length());
+
+    if (std::filesystem::is_directory("resources")) resources = "resources";
+    else if (std::filesystem::is_directory("../resources")) resources = "../resources";
+    else throw "Unable to find resources directory.";
 }

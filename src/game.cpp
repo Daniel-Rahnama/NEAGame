@@ -25,8 +25,6 @@ void Game::Run(const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<
 
     entities.emplace_back(&e);
 
-    appdata->TargetFPS(-1);
-
     Uint32 Target_Frame_Duration = 1000 / appdata->TargetFPS();
 
     Uint32 Title_Timestamp = SDL_GetTicks();
