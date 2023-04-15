@@ -4,7 +4,6 @@ void Mob::UpdateAnimation(const std::shared_ptr<AppData>& appdata) {
     switch (direction) {
         case Direction::NONE:
             srcrect.x = 0;
-            srcrect.y = 640;
             break;
         case Direction::UP: 
             srcrect.y = 512;

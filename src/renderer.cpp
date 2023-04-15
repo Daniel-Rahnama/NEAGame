@@ -15,7 +15,7 @@ Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
         throw TTF_GetError();
     }
 
-    window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, appdata->Width(), appdata->Height(), (appdata->Fullscreen() ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN) | SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, appdata->Width(), appdata->Height(), (appdata->Fullscreen() ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN));
 
     if (!window) {
         throw "Unable to create SDL Window";

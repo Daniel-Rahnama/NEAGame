@@ -13,12 +13,14 @@ public:
     ~AppData();
 
     const bool& Fullscreen();
+    const bool& Music();
     const unsigned int& Width();
     const unsigned int& Height();
     const unsigned int& TargetFPS();
     const std::string& Resources();
 
     void Fullscreen(const bool&);
+    void Music(const bool&);
     void Width(const int&);
     void Height(const int&);
     void TargetFPS(const int&);
@@ -26,6 +28,7 @@ public:
 private:    
     void CreateSettingsFile();
     void FindFullscreen();
+    void FindMusic();
     void FindWidth();
     void FindHeight();
     void FindTargetFPS();
@@ -36,6 +39,9 @@ private:
 
     bool fullscreen;
     std::mutex fullscreenGuard;
+
+    bool music;
+    std::mutex musicGuard;
 
     unsigned int width;
     std::mutex widthGuard;
@@ -48,6 +54,9 @@ private:
 
     std::string resources;
     std::mutex resourcesGuard;
+
+    std::string appdata;
+    std::string path;
 };
 
 #endif /* APPDATA_HPP */
