@@ -96,7 +96,6 @@ void AppData::Fullscreen(const bool& fullscreen) {
         width = GetSystemMetrics(SM_CXSCREEN);
         height = GetSystemMetrics(SM_CYSCREEN);
     } else {
-        std::scoped_lock<std::mutex> fileLock(fileGuard);
         FindWidth();
         FindHeight();
     }

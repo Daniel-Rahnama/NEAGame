@@ -35,11 +35,17 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
-void Renderer::Render(std::vector<Mob*>& entities) {
+void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs) {
     SDL_RenderClear(renderer);
 
-    for (Mob*& e : entities) {
-        SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &e->DSTRect());
+    for (std::vector<Entity*>& l : entities) {
+        for (Entity*& e : l) {
+            SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &e->DSTRect());
+        }
+    }
+
+    for (Mob*& m : mobs) {
+        SDL_RenderCopy(renderer, m->Spritesheet(), &m->SRCRect(), &m->DSTRect());
     }
 
     SDL_RenderPresent(renderer);
@@ -50,5 +56,5 @@ void Renderer::UpdateWindowTitle(const int& FPS) {
 }
 
 SDL_Texture* Renderer::CreateTexture(const std::string& spritesheet) {
-    return SDL_CreateTextureFromSurface(renderer, IMG_Load((appdata->Resources() + spritesheet).c_str()));
+    return SDL_CreateTextureFromSurface(renderer, IMG_Load((spritesheet).c_str()));
 }

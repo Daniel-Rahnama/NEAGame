@@ -17,7 +17,7 @@ class Renderer {
 public:
     Renderer(const std::shared_ptr<AppData>&);
     ~Renderer();
-    void Render(std::vector<Mob*>&);
+    void Render(std::vector<std::vector<Entity*>>& ,std::vector<Mob*>&);
     void UpdateWindowTitle(const int&);
     SDL_Texture* CreateTexture(const std::string&);
 
