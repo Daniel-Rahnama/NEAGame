@@ -14,12 +14,13 @@ Game::Game(const std::shared_ptr<AppData>& appdata, const std::shared_ptr<Render
 }
 
 void Game::Run() {
-
     if (appdata->Music()) mixer->Play();
     
     SDL_Texture* t = renderer->CreateTexture(appdata->Resources() + "/sprites/c1.png");
 
     Mob e(t, {64, 640, 64, 64}, {336, 336, 128, 128});
+
+    e.layer = 0;
 
     mobs.push_back(&e);
 
@@ -62,8 +63,7 @@ void Game::Run() {
 }
 
 void Game::Update(bool& running, unsigned int& Frame_Count, Mob& entity) {
-
-    entity.Update(appdata);
+    entity.Update(appdata, entities);
     if (!(Frame_Count % 5)) entity.UpdateAnimation(appdata);
 }
 

@@ -28,31 +28,74 @@ void Mob::UpdateAnimation(const std::shared_ptr<AppData>& appdata) {
     }
 }
 
-void Mob::Update(const std::shared_ptr<AppData>& appdata) {
+void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities) {
     switch(direction) {
-        case Direction::UP: MoveUp(appdata->Height()); break;
-        case Direction::DOWN: MoveDown(appdata->Height()); break;
-        case Direction::LEFT: MoveLeft(appdata->Width()); break;
-        case Direction::RIGHT: MoveRight(appdata->Width()); break;
+        case Direction::UP:
+            dstrect.y -= 4;
+
+            if (dstrect.y < 0) dstrect.y = 0;
+
+            for (int l = layer+1; l < entities.size(); l++) {
+                for (Entity*& e : entities[l]) {
+                    if (e == nullptr) continue;
+                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
+                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                        dstrect.y = e->DSTRect().y + e->DSTRect().h;
+                        break;
+                    }
+                }
+            }
+
+            break;
+        case Direction::DOWN:
+            dstrect.y += 4;
+
+            if (dstrect.y > appdata->Height() - dstrect.h) dstrect.y = appdata->Height() - dstrect.h;
+
+            for (int l = layer+1; l < entities.size(); l++) {
+                for (Entity*& e : entities[l]) {
+                    if (e == nullptr) continue;
+                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
+                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                        dstrect.y = e->DSTRect().y - dstrect.h;
+                        break;
+                    }
+                }
+            }
+
+            break;
+        case Direction::LEFT:
+            dstrect.x -= 4;
+            if (dstrect.x < 0) dstrect.x = 0;
+
+            for (int l = layer+1; l < entities.size(); l++) {
+                for (Entity*& e : entities[l]) {
+                    if (e == nullptr) continue;
+                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
+                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                        dstrect.x = e->DSTRect().x + e->DSTRect().w;
+                        break;
+                    }
+                }
+            }
+
+            break;
+        case Direction::RIGHT:
+            dstrect.x += 4;
+
+            if (dstrect.x > appdata->Width() - dstrect.w) dstrect.x = appdata->Width() - dstrect.w;
+
+            for (int l = layer+1; l < entities.size(); l++) {
+                for (Entity*& e : entities[l]) {
+                    if (e == nullptr) continue;
+                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
+                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                        dstrect.x = e->DSTRect().x - dstrect.w;
+                        break;
+                    }
+                }
+            }
+
+            break;
     }
-}
-
-void Mob::MoveUp(const unsigned int& bound) {
-    dstrect.y -= 4;
-    if (dstrect.y < 0) dstrect.y = 0;
-}
-
-void Mob::MoveDown(const unsigned int& bound) {
-    dstrect.y += 4;
-    if (dstrect.y > bound - dstrect.h) dstrect.y = bound - dstrect.h;
-}
-
-void Mob::MoveLeft(const unsigned int& bound) {
-    dstrect.x -= 4;
-    if (dstrect.x < 0) dstrect.x = 0;
-}
-
-void Mob::MoveRight(const unsigned int& bound) {
-    dstrect.x += 4;
-    if (dstrect.x > bound - dstrect.w) dstrect.x = bound - dstrect.w;
 }

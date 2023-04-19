@@ -19,14 +19,12 @@ public:
     using Entity::Entity;
 
     void UpdateAnimation(const std::shared_ptr<AppData>&);
-    void Update(const std::shared_ptr<AppData>&);
+    void Update(const std::shared_ptr<AppData>&, std::vector<std::vector<Entity*>>&);
 
     Direction direction;
+    unsigned int layer;
 private:
-    void MoveUp(const unsigned int&);
-    void MoveDown(const unsigned int&);
-    void MoveLeft(const unsigned int&);
-    void MoveRight(const unsigned int&);
+
 };
 
 #endif /* MOB_HPP */
