@@ -24,6 +24,7 @@ public:
     Direction direction;
     unsigned int layer;
 private:
+    bool Collision(Entity*&);
 
 };
 

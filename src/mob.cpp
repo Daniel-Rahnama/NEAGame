@@ -38,8 +38,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
-                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
-                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                    if (Collision(e)) {
                         dstrect.y = e->DSTRect().y + e->DSTRect().h;
                         break;
                     }
@@ -55,8 +54,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
-                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
-                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                    if (Collision(e)) {
                         dstrect.y = e->DSTRect().y - dstrect.h;
                         break;
                     }
@@ -71,8 +69,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
-                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
-                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                    if (Collision(e)) {
                         dstrect.x = e->DSTRect().x + e->DSTRect().w;
                         break;
                     }
@@ -88,8 +85,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
-                    if (dstrect.x < e->DSTRect().x + e->DSTRect().w && dstrect.x + dstrect.w > e->DSTRect().x
-                        && dstrect.y < e->DSTRect().y + e->DSTRect().h && dstrect.y + dstrect.h > e->DSTRect().y) {
+                    if (Collision(e)) {
                         dstrect.x = e->DSTRect().x - dstrect.w;
                         break;
                     }
@@ -98,4 +94,9 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
 
             break;
     }
+}
+
+bool Mob::Collision(Entity*& e) {
+    return ((dstrect.x < e->DSTRect().x + e->DSTRect().w) && (dstrect.x + dstrect.w > e->DSTRect().x)
+                        && (dstrect.y < e->DSTRect().y + e->DSTRect().h) && (dstrect.y + dstrect.h > e->DSTRect().y));
 }
