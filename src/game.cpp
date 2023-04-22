@@ -18,9 +18,7 @@ void Game::Run() {
     
     SDL_Texture* t = renderer->CreateTexture(appdata->Resources() + "/sprites/c1.png");
 
-    Mob e(t, {64, 640, 64, 64}, {336, 336, 128, 128});
-
-    e.layer = 0;
+    Mob e(t, {64, 640, 64, 64}, {336, 336, 128, 128}, 0);
 
     mobs.push_back(&e);
 

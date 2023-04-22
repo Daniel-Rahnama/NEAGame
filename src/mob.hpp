@@ -16,15 +16,19 @@ enum class Direction {
 
 class Mob : public Entity {
 public:
-    using Entity::Entity;
+    Mob(SDL_Texture*&, SDL_Rect, SDL_Rect, unsigned int);
 
     void UpdateAnimation(const std::shared_ptr<AppData>&);
     void Update(const std::shared_ptr<AppData>&, std::vector<std::vector<Entity*>>&);
 
+    unsigned int& Layer();
+    SDL_Rect hitbox;
     Direction direction;
-    unsigned int layer;
 private:
     bool Collision(Entity*&);
+
+    unsigned int layer;
+
 
 };
 

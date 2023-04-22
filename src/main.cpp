@@ -18,6 +18,12 @@ int main(int argc, char *argv[]) {
         Game(appdata, renderer, controller, mixer).Run();
     } catch (const char* exception) {
         MessageBoxA(NULL, exception, "Exception", MB_ICONERROR | MB_OK);
+    } catch (const std::string& exception) {
+        MessageBoxA(NULL, exception.c_str(), "Exception", MB_ICONERROR | MB_OK);
+    } catch (const std::exception& exception) {
+        MessageBoxA(NULL, exception.what(), "Exception", MB_ICONERROR | MB_OK);
+    } catch (...) {
+        MessageBoxA(NULL, "Unknown exception.", "Exception", MB_ICONERROR | MB_OK);
     }
     return 0;
 }

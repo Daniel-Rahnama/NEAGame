@@ -46,6 +46,7 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
 
     for (Mob*& m : mobs) {
         SDL_RenderCopy(renderer, m->Spritesheet(), &m->SRCRect(), &m->DSTRect());
+        SDL_RenderDrawLine(renderer, m->hitbox.x, m->hitbox.y, m->hitbox.x + m->hitbox.w, m->hitbox.y+m->hitbox.h);
     }
 
     SDL_RenderPresent(renderer);
