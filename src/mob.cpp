@@ -41,7 +41,10 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             dstrect.y -= 4;
             hitbox.y -= 4;
 
-            if (dstrect.y < 0) dstrect.y = 0;
+            if (dstrect.y < 0) {
+                dstrect.y = 0;
+                hitbox.y = dstrect.y + 96;
+            }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
@@ -58,7 +61,10 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             dstrect.y += 4;
             hitbox.y += 4;
 
-            if (dstrect.y > appdata->Height() - dstrect.h) dstrect.y = appdata->Height() - dstrect.h;
+            if (dstrect.y > appdata->Height() - dstrect.h) {
+                dstrect.y = appdata->Height() - dstrect.h;
+                hitbox.y = dstrect.y + 96;
+            }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
@@ -75,7 +81,10 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             dstrect.x -= 4;
             hitbox.x -= 4;
 
-            if (dstrect.x < 0) dstrect.x = 0;
+            if (dstrect.x < 0) {
+                dstrect.x = 0;
+                hitbox.x = dstrect.x + 32;
+            }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
@@ -92,7 +101,10 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
             dstrect.x += 4;
             hitbox.x += 4;
 
-            if (dstrect.x > appdata->Width() - dstrect.w) dstrect.x = appdata->Width() - dstrect.w;
+            if (dstrect.x > appdata->Width() - dstrect.w) {
+                dstrect.x = appdata->Width() - dstrect.w;
+                hitbox.x = dstrect.x + 32;
+            }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
