@@ -6,7 +6,6 @@
 #include <iostream>
 
 AppData::AppData() {
-
     appdata = getenv("APPDATA");
     path = appdata + "/NEAGame/settings.txt";
 

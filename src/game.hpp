@@ -21,7 +21,9 @@ public:
     void Run();
     void Update(bool&, unsigned int&, Mob&);
 private:
-    void ReadTileMap();
+    void LoadMap();
+
+    SDL_Rect camera;
 
     Tmx::Map tileMap;
 

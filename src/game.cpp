@@ -10,7 +10,7 @@
 
 Game::Game(const std::shared_ptr<AppData>& appdata, const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<Controller>& controller, const std::shared_ptr<Mixer>& mixer)
     : appdata(appdata), renderer(renderer), controller(controller), mixer(mixer) {
-    ReadTileMap();
+    LoadMap();
 }
 
 void Game::Run() {
@@ -40,7 +40,7 @@ void Game::Run() {
 
         Update(running, Frame_Count, e);
 
-        renderer->Render(entities, mobs);
+        renderer->Render(entities, mobs, camera);
 
         Frame_End = SDL_GetTicks();
 
@@ -65,12 +65,21 @@ void Game::Update(bool& running, unsigned int& Frame_Count, Mob& entity) {
     if (!(Frame_Count % 5)) entity.UpdateAnimation(appdata);
 }
 
-void Game::ReadTileMap() {
+void Game::LoadMap() {
     tileMap.ParseFile(appdata->Resources() + "/tilemaps/map.tmx");
 
     if (tileMap.HasError()) {
         throw (tileMap.GetErrorCode() + ": " + tileMap.GetErrorText()).c_str();
     }
+
+    camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
+    camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
+
+    // camera.x = (camera.w - appdata->Width()) / 2;
+    // camera.y = (camera.h - appdata->Height()) / 2;
+
+    camera.x = 0;
+    camera.y = 0;
 
     for (Tmx::Tileset* tileset : tileMap.GetTilesets()) {
         tilesets[tileset->GetName()] = {tileset, renderer->CreateTexture(appdata->Resources() + tileset->GetImage()->GetSource())};

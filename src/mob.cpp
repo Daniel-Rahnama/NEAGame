@@ -120,7 +120,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
     }
 }
 
-unsigned int &Mob::Layer() {
+unsigned int& Mob::Layer() {
     return layer;
 }
 
