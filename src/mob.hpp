@@ -19,7 +19,7 @@ public:
     Mob(SDL_Texture*&, SDL_Rect, SDL_Rect, unsigned int);
 
     void UpdateAnimation(const std::shared_ptr<AppData>&);
-    void Update(const std::shared_ptr<AppData>&, std::vector<std::vector<Entity*>>&);
+    void Update(const std::shared_ptr<AppData>&, std::vector<std::vector<Entity*>>&, SDL_Rect&);
 
     unsigned int& Layer();
     SDL_Rect hitbox;

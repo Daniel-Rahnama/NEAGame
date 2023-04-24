@@ -6,8 +6,7 @@ Mob::Mob(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, unsigned
     hitbox = { dstrect.x + 32, dstrect.y + 96, dstrect.w - 64, dstrect.h - 96 };
 }
 
-void Mob::UpdateAnimation(const std::shared_ptr<AppData> &appdata)
-{
+void Mob::UpdateAnimation(const std::shared_ptr<AppData> &appdata) {
     switch (direction) {
         case Direction::NONE:
             srcrect.x = 0;
@@ -35,11 +34,13 @@ void Mob::UpdateAnimation(const std::shared_ptr<AppData> &appdata)
     }
 }
 
-void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities) {
+void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
     switch(direction) {
         case Direction::UP:
             dstrect.y -= 4;
             hitbox.y -= 4;
+
+            camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
 
             if (dstrect.y < 0) {
                 dstrect.y = 0;
@@ -52,17 +53,29 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
                     if (Collision(e)) {
                         dstrect.y = e->DSTRect().y - (e->DSTRect().h - hitbox.h);
                         hitbox.y = dstrect.y + 96;
+                        camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
                         break;
                     }
                 }
             }
+            
+            if (camera.y < 0) {
+                camera.y = 0;
+            }
+
+            if (camera.y > camera.h - appdata->Height()) {
+                camera.y = camera.h - appdata->Height();
+            }
+
             break;
         case Direction::DOWN:
             dstrect.y += 4;
             hitbox.y += 4;
 
-            if (dstrect.y > appdata->Height() - dstrect.h) {
-                dstrect.y = appdata->Height() - dstrect.h;
+            camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
+            
+            if (dstrect.y > camera.h - dstrect.h) {
+                dstrect.y = camera.h - dstrect.h;
                 hitbox.y = dstrect.y + 96;
             }
 
@@ -72,14 +85,26 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
                     if (Collision(e)) {
                         dstrect.y = e->DSTRect().y - dstrect.h;
                         hitbox.y = dstrect.y + 96;
+                        camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
                         break;
                     }
                 }
             }
+
+            if (camera.y < 0) {
+                camera.y = 0;
+            }
+
+            if (camera.y > camera.h - appdata->Height()) {
+                camera.y = camera.h - appdata->Height();
+            }
+
             break;
         case Direction::LEFT:
             dstrect.x -= 4;
             hitbox.x -= 4;
+
+            camera.x = dstrect.x - ((appdata->Width() - dstrect.w) / 2);
 
             if (dstrect.x < 0) {
                 dstrect.x = 0;
@@ -92,17 +117,29 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
                     if (Collision(e)) {
                         dstrect.x = e->DSTRect().x + ((dstrect.w - hitbox.w) / 2);
                         hitbox.x = dstrect.x + 32;
+                        camera.x = dstrect.x - ((appdata->Width() - dstrect.w) / 2);
                         break;
                     }
                 }
             }
+
+            if (camera.x < 0) {
+                camera.x = 0;
+            }
+
+            if (camera.x > camera.w - appdata->Width()) {
+                camera.x = camera.w - appdata->Width();
+            }
+
             break;
         case Direction::RIGHT:
             dstrect.x += 4;
             hitbox.x += 4;
 
-            if (dstrect.x > appdata->Width() - dstrect.w) {
-                dstrect.x = appdata->Width() - dstrect.w;
+            camera.x = dstrect.x - ((appdata->Width() - dstrect.w) / 2);
+
+            if (dstrect.x > camera.w - dstrect.w) {
+                dstrect.x = camera.w - dstrect.w;
                 hitbox.x = dstrect.x + 32;
             }
 
@@ -112,10 +149,20 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
                     if (Collision(e)) {
                         dstrect.x = e->DSTRect().x - (e->DSTRect().w + ((dstrect.w - hitbox.w) / 2));
                         hitbox.x = dstrect.x + 32;
+                        camera.x = dstrect.x - ((appdata->Width() - dstrect.w) / 2);
                         break;
                     }
                 }
             }
+
+            if (camera.x < 0) {
+                camera.x = 0;
+            }
+
+            if (camera.x > camera.w - appdata->Width()) {
+                camera.x = camera.w - appdata->Width();
+            }
+
             break;
     }
 }

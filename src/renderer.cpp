@@ -38,23 +38,27 @@ Renderer::~Renderer() {
 void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, const SDL_Rect& camera) {
     SDL_RenderClear(renderer);
 
-    // std::vector<SDL_Rect> dstrects;
+    std::vector<SDL_Rect> dstrects;
 
     for (std::vector<Entity*>& l : entities) {
         int i = 0;
         for (Entity*& e : l) {
             if ((camera.x < e->DSTRect().x + e->DSTRect().w) && (camera.x + appdata->Width() > e->DSTRect().x)
                 && (camera.y < e->DSTRect().y + e->DSTRect().h) && (camera.y + appdata->Height() > e->DSTRect().y)) {
-                // dstrects.emplace_back(SDL_Rect{ camera.x - e->DSTRect().x, camera.y - e->DSTRect().y, e->DSTRect().w, e->DSTRect().h });
-                SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &e->DSTRect());
+                dstrects.emplace_back(SDL_Rect{ e->DSTRect().x - camera.x, e->DSTRect().y - camera.y, e->DSTRect().w, e->DSTRect().h });
+                SDL_RenderCopy(renderer, e->Spritesheet(), &e->SRCRect(), &dstrects.back());
 
             }
         }
     }
 
     for (Mob*& m : mobs) {
-        SDL_RenderCopy(renderer, m->Spritesheet(), &m->SRCRect(), &m->DSTRect());
-        SDL_RenderDrawLine(renderer, m->hitbox.x, m->hitbox.y, m->hitbox.x + m->hitbox.w, m->hitbox.y + m->hitbox.h);
+        if ((camera.x < m->DSTRect().x + m->DSTRect().w) && (camera.x + appdata->Width() > m->DSTRect().x)
+            && (camera.y < m->DSTRect().y + m->DSTRect().h) && (camera.y + appdata->Height() > m->DSTRect().y)) {
+            dstrects.emplace_back(SDL_Rect{ m->DSTRect().x - camera.x, m->DSTRect().y - camera.y, m->DSTRect().w, m->DSTRect().h });
+            SDL_RenderCopy(renderer, m->Spritesheet(), &m->SRCRect(), &dstrects.back());
+            SDL_RenderDrawLine(renderer, m->hitbox.x - camera.x, m->hitbox.y - camera.y, m->hitbox.x + m->hitbox.w - camera.x, m->hitbox.y + m->hitbox.h - camera.y);
+        }
     }
 
     SDL_RenderPresent(renderer);

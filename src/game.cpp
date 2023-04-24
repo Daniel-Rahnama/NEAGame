@@ -11,6 +11,11 @@
 Game::Game(const std::shared_ptr<AppData>& appdata, const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<Controller>& controller, const std::shared_ptr<Mixer>& mixer)
     : appdata(appdata), renderer(renderer), controller(controller), mixer(mixer) {
     LoadMap();
+    
+    camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
+    camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
+    camera.x = (camera.w - appdata->Width()) / 2;
+    camera.y = (camera.h - appdata->Height()) / 2;
 }
 
 void Game::Run() {
@@ -18,7 +23,7 @@ void Game::Run() {
     
     SDL_Texture* t = renderer->CreateTexture(appdata->Resources() + "/sprites/c1.png");
 
-    Mob e(t, {64, 640, 64, 64}, {336, 336, 128, 128}, 0);
+    Mob e(t, {64, 640, 64, 64}, {(camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128}, 0);
 
     mobs.push_back(&e);
 
@@ -61,7 +66,7 @@ void Game::Run() {
 }
 
 void Game::Update(bool& running, unsigned int& Frame_Count, Mob& entity) {
-    entity.Update(appdata, entities);
+    entity.Update(appdata, entities, camera);
     if (!(Frame_Count % 5)) entity.UpdateAnimation(appdata);
 }
 
@@ -71,15 +76,6 @@ void Game::LoadMap() {
     if (tileMap.HasError()) {
         throw (tileMap.GetErrorCode() + ": " + tileMap.GetErrorText()).c_str();
     }
-
-    camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
-    camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
-
-    // camera.x = (camera.w - appdata->Width()) / 2;
-    // camera.y = (camera.h - appdata->Height()) / 2;
-
-    camera.x = 0;
-    camera.y = 0;
 
     for (Tmx::Tileset* tileset : tileMap.GetTilesets()) {
         tilesets[tileset->GetName()] = {tileset, renderer->CreateTexture(appdata->Resources() + tileset->GetImage()->GetSource())};
