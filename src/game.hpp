@@ -9,6 +9,7 @@
 #include "mixer.hpp"
 #include "appdata.hpp"
 #include "mob.hpp"
+#include "player.hpp"
 
 #include <string>
 #include <memory>
@@ -19,7 +20,7 @@ class Game {
 public:
     Game(const std::shared_ptr<AppData>&, const std::shared_ptr<Renderer>&, const std::shared_ptr<Controller>&, const std::shared_ptr<Mixer>&);
     void Run();
-    void Update(bool&, unsigned int&, Mob&);
+    void Update(bool&, unsigned int&, Player&);
 private:
     void LoadMap();
 
@@ -36,6 +37,7 @@ private:
 
     std::vector<std::vector<Entity*>> entities;
     std::vector<Mob*> mobs;
+    Player* player;
 
     const std::shared_ptr<AppData>& appdata;
     const std::shared_ptr<Renderer>& renderer;

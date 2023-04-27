@@ -23,9 +23,9 @@ void Game::Run() {
     
     SDL_Texture* t = renderer->CreateTexture(appdata->Resources() + "/sprites/c1.png");
 
-    Mob e(t, {64, 640, 64, 64}, {(camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128}, 0);
+    Player e(t, {64, 640, 64, 64}, {(camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128}, 0);
 
-    mobs.push_back(&e);
+    player = &e;
 
     Uint32 Target_Frame_Duration = 1000 / appdata->TargetFPS();
 
@@ -45,7 +45,7 @@ void Game::Run() {
 
         Update(running, Frame_Count, e);
 
-        renderer->Render(entities, mobs, camera);
+        renderer->Render(entities, mobs, player, camera);
 
         Frame_End = SDL_GetTicks();
 
@@ -65,9 +65,9 @@ void Game::Run() {
     }
 }
 
-void Game::Update(bool& running, unsigned int& Frame_Count, Mob& entity) {
-    entity.Update(appdata, entities, camera);
-    if (!(Frame_Count % 5)) entity.UpdateAnimation(appdata);
+void Game::Update(bool& running, unsigned int& Frame_Count, Player& player) {
+    player.Update(appdata, entities, camera);
+    if (!(Frame_Count % 5)) player.UpdateAnimation(appdata);
 }
 
 void Game::LoadMap() {

@@ -4,6 +4,7 @@
 #include "appdata.hpp"
 #include "entity.hpp"
 #include "mob.hpp"
+#include "player.hpp"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_ttf.h"
@@ -17,7 +18,7 @@ class Renderer {
 public:
     Renderer(const std::shared_ptr<AppData>&);
     ~Renderer();
-    void Render(std::vector<std::vector<Entity*>>& ,std::vector<Mob*>&, const SDL_Rect&);
+    void Render(std::vector<std::vector<Entity*>>& ,std::vector<Mob*>&, Player*&, const SDL_Rect&);
     void UpdateWindowTitle(const int&);
     SDL_Texture* CreateTexture(const std::string&);
 

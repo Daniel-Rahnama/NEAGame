@@ -24,7 +24,7 @@ public:
     unsigned int& Layer();
     SDL_Rect hitbox;
     Direction direction;
-private:
+protected:
     bool Collision(Entity*&);
 
     unsigned int layer;
