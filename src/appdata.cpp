@@ -14,8 +14,6 @@ AppData::AppData() {
     if (file.is_open()) {
         std::vector<std::future<void>> queue;
 
-        std::fstream::in;
-
         queue.emplace_back(std::async(&AppData::FindFullscreen, this));
         queue.emplace_back(std::async(&AppData::FindMusic, this));
         queue.emplace_back(std::async(&AppData::FindTargetFPS, this));
@@ -36,10 +34,10 @@ AppData::AppData() {
     } else {
         CreateSettingsFile();
     }
-    file.close();
 }
 
 AppData::~AppData() {
+    file.close();
     file.open(path, std::fstream::out | std::fstream::trunc);
 
     file << (

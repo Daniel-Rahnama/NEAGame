@@ -3,10 +3,16 @@
 
 #include "mob.hpp"
 
+/// @brief Class representing the player
 class Player : public Mob {
 public:
     using Mob::Mob;
-    void Update(const std::shared_ptr<AppData>&, std::vector<std::vector<Entity*>>&, SDL_Rect&);
+
+    /// @brief Updates the position of the player
+    /// @param appdata AppData shared pointer
+    /// @param entities Game map
+    /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
+    void Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera);
 };
 
 #endif /* PLAYER_HPP */

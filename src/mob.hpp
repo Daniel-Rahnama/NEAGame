@@ -6,6 +6,7 @@
 
 #include <memory>
 
+/// @brief Enum class for directions
 enum class Direction {
     NONE,
     UP,
@@ -14,22 +15,43 @@ enum class Direction {
     RIGHT
 };
 
+/// @brief Base class for all mobs
 class Mob : public Entity {
 public:
-    Mob(SDL_Texture*&, SDL_Rect, SDL_Rect, unsigned int);
+    /// @brief Sets the spritesheet, source rectangle, destination rectangle, and layer of the mob, creates the hitbox
+    /// @param spritesheet Reference to pointer to spritesheet of the entity
+    /// @param srcrect Source rectangle of the entity on the spritesheet
+    /// @param dstrect Destination rectangle of the entity on the screen
+    /// @param layer Layer the mob exists on
+    Mob(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, unsigned int layer);
 
-    void UpdateAnimation(const std::shared_ptr<AppData>&);
-    void Update(const std::shared_ptr<AppData>&, std::vector<std::vector<Entity*>>&, SDL_Rect&);
+    /// @brief Animates the mob
+    /// @param appdata AppData shared pointer
+    void UpdateAnimation(const std::shared_ptr<AppData>& appdata);
 
+    /// @brief Updates the position of the mob
+    /// @param appdata AppData shared pointer
+    /// @param entities Game map
+    /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
+    void Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera);
+
+    /// @brief Getter for the layer the mob exists on
+    /// @return Reference to the int representing the layer the mob exists on
     unsigned int& Layer();
+
+    /// @brief Rectangle representing the hitbox of the mob
     SDL_Rect hitbox;
+
+    /// @brief Direction the mob is moving
     Direction direction;
 protected:
-    bool Collision(Entity*&);
+    /// @brief Collision detection for the mob's hitbox and an entity
+    /// @param e Entity to check collision with
+    /// @return 1 if collision, 0 if no collision
+    bool Collision(Entity*& e);
 
+    /// @brief Layer the mob exists on
     unsigned int layer;
-
-
 };
 
 #endif /* MOB_HPP */

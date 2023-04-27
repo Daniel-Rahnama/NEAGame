@@ -9,16 +9,29 @@
 #include <string>
 #include <memory>
 
+/// @brief Audio output interface
 class Mixer {
 public:
-    Mixer(const std::shared_ptr<AppData>&);
+    /// @brief Initializes audio
+    /// @param appdata AppData shared pointer
+    Mixer(const std::shared_ptr<AppData>& appdata);
+
+    /// @brief Destructor
     ~Mixer();
+
+    /// @brief Plays a sound
     void Play();
 private:
+    /// @brief AppData shared pointer
     const std::shared_ptr<AppData>& appdata;
 
+    /// @brief SDL Audio Spec
     SDL_AudioSpec wavSpec;
+
+    /// @brief Length of the audio file
     Uint32 wavLength;
+
+    /// @brief Buffer of the audio file
     Uint8 *wavBuffer;
 };
 

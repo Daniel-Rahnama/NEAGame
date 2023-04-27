@@ -9,7 +9,7 @@
 #include <iostream>
 #include <memory>
 
-int main(int argc, char** argv) {
+int SDL_main(int argc, char* argv[]) {
     try {
         const std::shared_ptr<AppData> appdata = std::make_shared<AppData>();
         const std::shared_ptr<Renderer> renderer = std::make_shared<Renderer>(appdata);
