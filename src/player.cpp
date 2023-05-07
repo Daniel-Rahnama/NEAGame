@@ -4,8 +4,8 @@
 #include <iostream>
 
 void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
-    switch(direction) {
-        case Direction::UP:
+    if (state & MOVING) {
+        if (state & UP) {
             dstrect.y -= 4;
             hitbox.y -= 4;
 
@@ -26,7 +26,7 @@ void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::ve
             }
 
             camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
-            
+
             if (camera.y < 0) {
                 camera.y = 0;
             }
@@ -35,11 +35,10 @@ void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::ve
                 camera.y = camera.h - appdata->Height();
             }
 
-            break;
-        case Direction::DOWN:
+        } else if (state & DOWN) {
             dstrect.y += 4;
             hitbox.y += 4;
-            
+
             if (dstrect.y > camera.h - dstrect.h) {
                 dstrect.y = camera.h - dstrect.h;
                 hitbox.y = dstrect.y + 96;
@@ -66,11 +65,10 @@ void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::ve
                 camera.y = camera.h - appdata->Height();
             }
 
-            break;
-        case Direction::LEFT:
+        } else if (state & LEFT) {
             dstrect.x -= 4;
             hitbox.x -= 4;
-        
+
             if (dstrect.x < 0) {
                 dstrect.x = 0;
                 hitbox.x = dstrect.x + 32;
@@ -97,8 +95,7 @@ void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::ve
                 camera.x = camera.w - appdata->Width();
             }
 
-            break;
-        case Direction::RIGHT:
+        } else if (state & RIGHT) {
             dstrect.x += 4;
             hitbox.x += 4;
 
@@ -127,7 +124,6 @@ void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::ve
             if (camera.x > camera.w - appdata->Width()) {
                 camera.x = camera.w - appdata->Width();
             }
-
-            break;
+        }
     }
 }

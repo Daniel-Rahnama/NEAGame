@@ -4,39 +4,36 @@
 
 Mob::Mob(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, unsigned int layer) : Entity(spritesheet, srcrect, dstrect), layer(layer) {
     hitbox = { dstrect.x + 32, dstrect.y + 96, dstrect.w - 64, dstrect.h - 96 };
+    state = DOWN; 
 }
 
 void Mob::UpdateAnimation(const std::shared_ptr<AppData> &appdata) {
-    switch (direction) {
-        case Direction::NONE:
-            srcrect.x = 0;
-            break;
-        case Direction::UP:
+    if (state & MOVING) {
+        if (state & UP) {
             srcrect.y = 512;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-            break;
-        case Direction::DOWN:
+        } else if (state & DOWN) {
             srcrect.y = 640;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-            break;
-        case Direction::LEFT:
+        } else if (state & LEFT) {
             srcrect.y = 576;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-            break;
-        case Direction::RIGHT:
+        } else if (state & RIGHT) {
             srcrect.y = 704;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-            break;
+        }
+    } else {
+        srcrect.x = 0;
     }
 }
 
 void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
-    switch(direction) {
-        case Direction::UP:
+    if (state & MOVING) {
+        if (state & UP) {
             dstrect.y -= 4;
 
             if (dstrect.y < 0) {
@@ -54,8 +51,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
 
             hitbox.y = dstrect.y + 96;
 
-            break;
-        case Direction::DOWN:
+        } else if (state & DOWN) {
             dstrect.y += 4;
             
             if (dstrect.y > camera.h - dstrect.h) {
@@ -73,10 +69,9 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
 
             hitbox.y = dstrect.y + 96;
 
-            break;
-        case Direction::LEFT:
+        } else if (state & LEFT) {
             dstrect.x -= 4;
-        
+
             if (dstrect.x < 0) {
                 dstrect.x = 0;
             }
@@ -92,8 +87,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
 
             hitbox.x = dstrect.x + 32;
 
-            break;
-        case Direction::RIGHT:
+        } else if (state & RIGHT) {
             dstrect.x += 4;
 
             if (dstrect.x > camera.w - dstrect.w) {
@@ -111,7 +105,7 @@ void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vecto
 
             hitbox.x = dstrect.x + 32;
 
-            break;
+        }
     }
 }
 

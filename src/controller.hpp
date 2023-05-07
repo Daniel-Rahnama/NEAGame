@@ -10,8 +10,8 @@ class Controller {
 public:
     /// @brief Handles user input
     /// @param running Reference to the running variable in game loop
-    /// @param direction Direction reference to set the direction of the player
-    void HandleInput(bool& running, Direction& direction);
+    /// @param state State reference to the state of the player
+    void HandleInput(bool& running, uint16_t& state);
 };
 
 #endif /* CONTROLLER_HPP */

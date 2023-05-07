@@ -41,7 +41,7 @@ void Game::Run() {
     while (running) {
         Frame_Start = SDL_GetTicks();
 
-        controller->HandleInput(running, e.direction);
+        controller->HandleInput(running, e.state);
 
         Update(running, Frame_Count, e);
 
