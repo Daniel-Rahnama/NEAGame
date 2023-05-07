@@ -19,7 +19,7 @@ class Renderer {
 public:
     /// @brief Creates the window and renderer
     /// @param appdata AppData shared pointer
-    Renderer(const std::shared_ptr<AppData>& appdata);
+    Renderer(const std::unique_ptr<AppData>& appdata);
 
     /// @brief Destroys the window and renderer
     ~Renderer();
@@ -48,7 +48,7 @@ private:
     SDL_Renderer *renderer;
 
     /// @brief AppData shared pointer
-    const std::shared_ptr<AppData>& appdata;
+    const std::unique_ptr<AppData>& appdata;
 };
 
 #endif /* RENDERER_HPP */

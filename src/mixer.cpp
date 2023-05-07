@@ -1,6 +1,6 @@
 #include "mixer.hpp"
 
-Mixer::Mixer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
+Mixer::Mixer(const std::unique_ptr<AppData>& appdata) : appdata(appdata) {
     if (SDL_INIT_AUDIO < 0) {
         throw "Unable to initialise SDL_AUDIO";
     }

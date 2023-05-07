@@ -26,15 +26,15 @@ public:
 
     /// @brief Width Getter
     /// @return Width of the window
-    const unsigned int& Width();
+    const uint16_t& Width();
 
     /// @brief Height Getter
     /// @return Height of the window
-    const unsigned int& Height();
+    const uint16_t& Height();
 
     /// @brief Target Frames Per Second Getter
     /// @return Target Frames Per Second
-    const unsigned int& TargetFPS();
+    const uint8_t& TargetFPS();
 
     /// @brief Resources Getter
     /// @return Path to the resources folder
@@ -50,15 +50,15 @@ public:
 
     /// @brief Width Setter
     /// @param width The width of the window
-    void Width(const int& width);
+    void Width(const uint16_t& width);
 
     /// @brief Height Setter
     /// @param height The height of the window
-    void Height(const int& height);
+    void Height(const uint16_t& height);
 
     /// @brief TargetFPS Setter
     /// @param targetFPS The targetFPS
-    void TargetFPS(const int& targetFPS);
+    void TargetFPS(const uint8_t& targetFPS);
 
 private:
     /// @brief Assigns default values for appdata
@@ -101,19 +101,19 @@ private:
     std::mutex musicGuard;
 
     /// @brief Width of the window
-    unsigned int width;
+    uint16_t width;
 
     /// @brief Mutex for width
     std::mutex widthGuard;
 
     /// @brief Height of the window
-    unsigned int height;
+    uint16_t height;
 
     /// @brief Mutex for height
     std::mutex heightGuard;
 
     /// @brief Target Frames Per Second
-    unsigned int targetFPS;
+    uint8_t targetFPS;
 
     /// @brief Mutex for targetFPS
     std::mutex targetFPSGuard;

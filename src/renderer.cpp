@@ -5,7 +5,7 @@
 #include "entity.hpp"
 #include "mob.hpp"
 
-Renderer::Renderer(const std::shared_ptr<AppData>& appdata) : appdata(appdata) {
+Renderer::Renderer(const std::unique_ptr<AppData>& appdata) : appdata(appdata) {
     
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) {
         throw SDL_GetError();

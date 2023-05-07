@@ -8,7 +8,7 @@
 #include "entity.hpp"
 #include "mob.hpp"
 
-Game::Game(const std::shared_ptr<AppData>& appdata, const std::shared_ptr<Renderer>& renderer, const std::shared_ptr<Controller>& controller, const std::shared_ptr<Mixer>& mixer)
+Game::Game(const std::unique_ptr<AppData>& appdata, const std::unique_ptr<Renderer>& renderer, const std::unique_ptr<Controller>& controller, const std::unique_ptr<Mixer>& mixer)
     : appdata(appdata), renderer(renderer), controller(controller), mixer(mixer) {
     LoadMap();
     
@@ -27,47 +27,47 @@ void Game::Run() {
 
     player = &e;
 
-    Uint32 Target_Frame_Duration = 1000 / appdata->TargetFPS();
+    uint8_t TargetFrameDuration = 1000 / appdata->TargetFPS();
+    uint8_t FrameDuration;
 
-    Uint32 Title_Timestamp = SDL_GetTicks();
-    Uint32 Frame_Start;
-    Uint32 Frame_End;
-    Uint32 Frame_Duration;
+    uint32_t TitleTimestamp = SDL_GetTicks();
+    uint32_t FrameStart;
+    uint32_t FrameEnd;
 
-    unsigned int Frame_Count;
+    uint8_t FrameCount;
 
     bool running = true;
 
     while (running) {
-        Frame_Start = SDL_GetTicks();
+        FrameStart = SDL_GetTicks();
 
         controller->HandleInput(running, e.state);
 
-        Update(running, Frame_Count, e);
+        Update(running, FrameCount, e);
 
         renderer->Render(entities, mobs, player, camera);
 
-        Frame_End = SDL_GetTicks();
+        FrameEnd = SDL_GetTicks();
 
-        Frame_Duration = Frame_End - Frame_Start;
+        FrameDuration = FrameEnd - FrameStart;
 
-        Frame_Count++;
+        FrameCount++;
 
-        if (Frame_End - Title_Timestamp >= 1000) {
-            renderer->UpdateWindowTitle(Frame_Count);
-            Frame_Count = 0;
-            Title_Timestamp = Frame_End;
+        if (FrameEnd - TitleTimestamp >= 1000) {
+            renderer->UpdateWindowTitle(FrameCount);
+            FrameCount = 0;
+            TitleTimestamp = FrameEnd;
         }
 
-        if (Frame_Duration < Target_Frame_Duration) {
-            SDL_Delay(Target_Frame_Duration - Frame_Duration);
+        if (FrameDuration < TargetFrameDuration) {
+            SDL_Delay(TargetFrameDuration - FrameDuration);
         }
     }
 }
 
-void Game::Update(bool& running, unsigned int& Frame_Count, Player& player) {
+void Game::Update(bool& running, uint8_t& FrameCount, Player& player) {
     player.Update(appdata, entities, camera);
-    if (!(Frame_Count % 5)) player.UpdateAnimation(appdata);
+    if (!(FrameCount % 5)) player.UpdateAnimation(appdata);
 }
 
 void Game::LoadMap() {

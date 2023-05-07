@@ -62,17 +62,17 @@ const bool& AppData::Music() {
     return music;
 }
 
-const unsigned int& AppData::Width() {
+const uint16_t& AppData::Width() {
     std::scoped_lock<std::mutex> widthLock(widthGuard);
     return width;
 }
 
-const unsigned int& AppData::Height() {
+const uint16_t& AppData::Height() {
     std::scoped_lock<std::mutex> heightLock(heightGuard);
     return height;
 }
 
-const unsigned int& AppData::TargetFPS() {
+const uint8_t& AppData::TargetFPS() {
     std::scoped_lock<std::mutex> targetFPSLock(targetFPSGuard);
     return targetFPS;
 }
@@ -103,17 +103,17 @@ void AppData::Music(const bool& music) {
     this->music = music;
 }
 
-void AppData::Width(const int& width) {
+void AppData::Width(const uint16_t& width) {
     std::scoped_lock<std::mutex> widthLock(widthGuard);    
     this->width = width;
 }
 
-void AppData::Height(const int& height) {
+void AppData::Height(const uint16_t& height) {
     std::scoped_lock<std::mutex> heightLock(heightGuard);
     this->height = height;
 }
 
-void AppData::TargetFPS(const int& targetFPS) {
+void AppData::TargetFPS(const uint8_t& targetFPS) {
     std::scoped_lock<std::mutex> targetFPSLock(targetFPSGuard);
     this->targetFPS = targetFPS;
 }

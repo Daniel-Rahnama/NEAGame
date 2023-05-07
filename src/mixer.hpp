@@ -14,7 +14,7 @@ class Mixer {
 public:
     /// @brief Initializes audio
     /// @param appdata AppData shared pointer
-    Mixer(const std::shared_ptr<AppData>& appdata);
+    Mixer(const std::unique_ptr<AppData>& appdata);
 
     /// @brief Destructor
     ~Mixer();
@@ -23,7 +23,7 @@ public:
     void Play();
 private:
     /// @brief AppData shared pointer
-    const std::shared_ptr<AppData>& appdata;
+    const std::unique_ptr<AppData>& appdata;
 
     /// @brief SDL Audio Spec
     SDL_AudioSpec wavSpec;

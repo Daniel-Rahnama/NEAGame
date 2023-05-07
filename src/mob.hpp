@@ -32,13 +32,13 @@ public:
 
     /// @brief Animates the mob
     /// @param appdata AppData shared pointer
-    void UpdateAnimation(const std::shared_ptr<AppData>& appdata);
+    void UpdateAnimation(const std::unique_ptr<AppData>& appdata);
 
     /// @brief Updates the position of the mob
     /// @param appdata AppData shared pointer
     /// @param entities Game map
     /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
-    void Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera);
+    void Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera);
 
     /// @brief Getter for the layer the mob exists on
     /// @return Reference to the int representing the layer the mob exists on

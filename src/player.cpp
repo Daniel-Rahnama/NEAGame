@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-void Player::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
+void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
     if (state & MOVING) {
         if (state & UP) {
             dstrect.y -= 4;

@@ -7,7 +7,7 @@ Mob::Mob(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, unsigned
     state = DOWN; 
 }
 
-void Mob::UpdateAnimation(const std::shared_ptr<AppData> &appdata) {
+void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
     if (state & MOVING) {
         if (state & UP) {
             srcrect.y = 512;
@@ -31,7 +31,7 @@ void Mob::UpdateAnimation(const std::shared_ptr<AppData> &appdata) {
     }
 }
 
-void Mob::Update(const std::shared_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
+void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
     if (state & MOVING) {
         if (state & UP) {
             dstrect.y -= 4;
