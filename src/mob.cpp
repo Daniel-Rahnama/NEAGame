@@ -4,24 +4,23 @@
 
 Mob::Mob(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, unsigned int layer) : Entity(spritesheet, srcrect, dstrect), layer(layer) {
     hitbox = { dstrect.x + 32, dstrect.y + 96, dstrect.w - 64, dstrect.h - 96 };
-    state = DOWN; 
 }
 
 void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
     if (state & MOVING) {
-        if (state & UP) {
+        if (!((state ^ UP) & 0x3)) {
             srcrect.y = 512;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-        } else if (state & DOWN) {
+        } else if (!((state ^ DOWN) & 0x3)) {
             srcrect.y = 640;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-        } else if (state & LEFT) {
+        } else if (!((state ^ LEFT) & 0x3)) {
             srcrect.y = 576;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-        } else if (state & RIGHT) {
+        } else if (!((state ^ RIGHT) & 0x3)) {
             srcrect.y = 704;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
@@ -33,7 +32,25 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
 
 void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
     if (state & MOVING) {
-        if (state & UP) {
+        if (!((state ^ DOWN) & 0x3)) {
+            dstrect.y += 4;
+            
+            if (dstrect.y > camera.h - dstrect.h) {
+                dstrect.y = camera.h - dstrect.h;
+            }
+
+            for (int l = layer+1; l < entities.size(); l++) {
+                for (Entity*& e : entities[l]) {
+                    if (e == nullptr) continue;
+                    if (Collision(e)) {
+                        dstrect.y = e->DSTRect().y - dstrect.h;
+                    }
+                }
+            }
+
+            hitbox.y = dstrect.y + 96;
+        
+        } else if (!((state ^ UP) & 0x3)) {
             dstrect.y -= 4;
 
             if (dstrect.y < 0) {
@@ -51,25 +68,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
 
             hitbox.y = dstrect.y + 96;
 
-        } else if (state & DOWN) {
-            dstrect.y += 4;
-            
-            if (dstrect.y > camera.h - dstrect.h) {
-                dstrect.y = camera.h - dstrect.h;
-            }
-
-            for (int l = layer+1; l < entities.size(); l++) {
-                for (Entity*& e : entities[l]) {
-                    if (e == nullptr) continue;
-                    if (Collision(e)) {
-                        dstrect.y = e->DSTRect().y - dstrect.h;
-                    }
-                }
-            }
-
-            hitbox.y = dstrect.y + 96;
-
-        } else if (state & LEFT) {
+        } else if (!((state ^ LEFT) & 0x3)) {
             dstrect.x -= 4;
 
             if (dstrect.x < 0) {
@@ -87,7 +86,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
 
             hitbox.x = dstrect.x + 32;
 
-        } else if (state & RIGHT) {
+        } else if (!((state ^ RIGHT) & 0x3)) {
             dstrect.x += 4;
 
             if (dstrect.x > camera.w - dstrect.w) {

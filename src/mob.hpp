@@ -8,14 +8,14 @@
 
 /// @brief State of the mob
 typedef enum {
+    /// @brief Player facing DOWN
+    DOWN = 0x0000,
     /// @brief Player facing UP
     UP = 0x0001,
-    /// @brief Player facing DOWN
-    DOWN = 0x0002,
     /// @brief Player facing LEFT
-    LEFT = 0x0004,
+    LEFT = 0x0002,
     /// @brief Player facing RIGHT
-    RIGHT = 0x0008,
+    RIGHT = 0x0003,
     /// @brief Player MOVING
     MOVING = 0x0010,
 } State;
