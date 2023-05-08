@@ -4,6 +4,7 @@
 
 Mob::Mob(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, unsigned int layer) : Entity(spritesheet, srcrect, dstrect), layer(layer) {
     hitbox = { dstrect.x + 32, dstrect.y + 96, dstrect.w - 64, dstrect.h - 96 };
+    state = 0;
 }
 
 void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {

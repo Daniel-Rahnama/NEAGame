@@ -17,7 +17,7 @@ typedef enum {
     /// @brief Player facing RIGHT
     RIGHT = 0x0003,
     /// @brief Player MOVING
-    MOVING = 0x0010,
+    MOVING = 0x0004,
 } State;
 
 /// @brief Base class for all mobs

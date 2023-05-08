@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <bitset>
 
 #include "entity.hpp"
 #include "mob.hpp"
