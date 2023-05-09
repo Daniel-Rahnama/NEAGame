@@ -13,12 +13,12 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
             srcrect.y = 512;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
-        } else if (!((state ^ DOWN) & 0x3)) {
-            srcrect.y = 640;
-            srcrect.x += 64;
-            if (srcrect.x >= 576) srcrect.x = 64;
         } else if (!((state ^ LEFT) & 0x3)) {
             srcrect.y = 576;
+            srcrect.x += 64;
+            if (srcrect.x >= 576) srcrect.x = 64;
+        } else if (!((state ^ DOWN) & 0x3)) {
+            srcrect.y = 640;
             srcrect.x += 64;
             if (srcrect.x >= 576) srcrect.x = 64;
         } else if (!((state ^ RIGHT) & 0x3)) {
@@ -33,29 +33,13 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
 
 void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
     if (state & MOVING) {
-        if (!((state ^ DOWN) & 0x3)) {
-            dstrect.y += 4;
-            
-            if (dstrect.y > camera.h - dstrect.h) {
-                dstrect.y = camera.h - dstrect.h;
-            }
-
-            for (int l = layer+1; l < entities.size(); l++) {
-                for (Entity*& e : entities[l]) {
-                    if (e == nullptr) continue;
-                    if (Collision(e)) {
-                        dstrect.y = e->DSTRect().y - dstrect.h;
-                    }
-                }
-            }
-
-            hitbox.y = dstrect.y + 96;
-        
-        } else if (!((state ^ UP) & 0x3)) {
+        if (!((state ^ UP) & 0x3)) {
             dstrect.y -= 4;
+            hitbox.y -= 4;
 
             if (dstrect.y < 0) {
                 dstrect.y = 0;
+                hitbox.y = dstrect.y + 96;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -63,17 +47,18 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.y = e->DSTRect().y - (e->DSTRect().h - hitbox.h);
+                        hitbox.y = dstrect.y + 96;
                     }
                 }
             }
 
-            hitbox.y = dstrect.y + 96;
-
         } else if (!((state ^ LEFT) & 0x3)) {
             dstrect.x -= 4;
+            hitbox.x -= 4;
 
             if (dstrect.x < 0) {
                 dstrect.x = 0;
+                hitbox.x = dstrect.x + 32;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -81,17 +66,37 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.x = e->DSTRect().x + ((dstrect.w - hitbox.w) / 2);
+                        hitbox.x = dstrect.x + 32;
                     }
                 }
             }
 
-            hitbox.x = dstrect.x + 32;
+        } else if (!((state ^ DOWN) & 0x3)) {
+            dstrect.y += 4;
+            hitbox.y += 4;
+            
+            if (dstrect.y > camera.h - dstrect.h) {
+                dstrect.y = camera.h - dstrect.h;
+                hitbox.y = dstrect.y + 96;
+            }
+
+            for (int l = layer+1; l < entities.size(); l++) {
+                for (Entity*& e : entities[l]) {
+                    if (e == nullptr) continue;
+                    if (Collision(e)) {
+                        dstrect.y = e->DSTRect().y - dstrect.h;
+                        hitbox.y = dstrect.y + 96;
+                    }
+                }
+            }
 
         } else if (!((state ^ RIGHT) & 0x3)) {
             dstrect.x += 4;
+            hitbox.x += 4;
 
             if (dstrect.x > camera.w - dstrect.w) {
                 dstrect.x = camera.w - dstrect.w;
+                hitbox.x = dstrect.x + 32;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -99,12 +104,10 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.x = e->DSTRect().x - (e->DSTRect().w + ((dstrect.w - hitbox.w) / 2));
+                        hitbox.x = dstrect.x + 32;
                     }
                 }
             }
-
-            hitbox.x = dstrect.x + 32;
-
         }
     }
 }

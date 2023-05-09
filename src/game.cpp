@@ -35,7 +35,7 @@ void Game::Run() {
     uint32_t FrameStart;
     uint32_t FrameEnd;
 
-    uint8_t FrameCount;
+    uint16_t FrameCount;
 
     bool running = true;
 
@@ -43,6 +43,10 @@ void Game::Run() {
         FrameStart = SDL_GetTicks();
 
         controller->HandleInput(running, e.state);
+
+        std::bitset<3> state(e.state);
+
+        std::cout << state << std::endl;
 
         Update(running, FrameCount, e);
 
@@ -66,7 +70,7 @@ void Game::Run() {
     }
 }
 
-void Game::Update(bool& running, uint8_t& FrameCount, Player& player) {
+void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
     player.Update(appdata, entities, camera);
     if (!(FrameCount % 5)) player.UpdateAnimation(appdata);
 }

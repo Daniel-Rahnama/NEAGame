@@ -9,11 +9,11 @@
 /// @brief State of the mob
 typedef enum {
     /// @brief Player facing DOWN
-    DOWN = 0x0000,
+    UP = 0x0000,
     /// @brief Player facing UP
-    UP = 0x0001,
+    LEFT = 0x0001,
     /// @brief Player facing LEFT
-    LEFT = 0x0002,
+    DOWN = 0x0002,
     /// @brief Player facing RIGHT
     RIGHT = 0x0003,
     /// @brief Player MOVING

@@ -33,7 +33,7 @@ public:
     /// @param running Reference to the running variable in game loop
     /// @param FrameCount Frame count reference
     /// @param player Reference to the player
-    void Update(bool& running, uint8_t& FrameCount, Player& player);
+    void Update(bool& running, uint16_t& FrameCount, Player& player);
 private:
     /// @brief Loads the game map
     void LoadMap();
