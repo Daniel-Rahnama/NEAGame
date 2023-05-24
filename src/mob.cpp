@@ -3,10 +3,6 @@
 #include <iostream>
 #include <cassert>
 
-// BUG: MOB IS USING VALUES FOR WHEN THE PLAYER IS ATTACKING BEFORE THE ATTACKING ANIMATION HAS BEGUN
-// THIS IS DUE TO THE MOB UPDATING POSITION BEFORE ANIMATION.
-// UPDATE SHOULD INSTEAD CHECK THE ANIMATION STATE OF THE MOB.
-
 Mob::Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer)
     : Entity(spritesheet, {0, 512, 64, 64}, dstrect), state(state), layer(layer) {
     if (!((state ^ UP) & 0x3)) srcrect.y = 512;
