@@ -75,7 +75,7 @@ void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
     player.Update(appdata, entities, camera);
     if (!(FrameCount % 5)) player.UpdateAnimation(appdata);
 
-    if (player.Health() <= 0) {
+    if (player.state & DEAD) {
         running = false;
     }
 

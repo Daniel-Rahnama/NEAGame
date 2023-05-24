@@ -4,7 +4,7 @@
 #include <iostream>
 
 void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
-    if (state & MOVING) {
+    if (state & MOVING && health > 0) {
         if (!((state ^ UP) & 0x3)) {
             dstrect.y -= 4;
             hitbox.y -= 4;

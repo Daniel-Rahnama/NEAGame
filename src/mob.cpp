@@ -104,13 +104,18 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
         }
     } else {
         srcrect.x = 0;
+
+        if (!((state ^ UP) & 0x3)) srcrect.y = 512;
+        else if (!((state ^ LEFT) & 0x3)) srcrect.y = 576;
+        else if (!((state ^ DOWN) & 0x3)) srcrect.y = 640;
+        else if (!((state ^ RIGHT) & 0x3)) srcrect.y = 704;
     }
 }
 
 void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
     health -= 1;
     
-    if (state & MOVING && !(state & DEAD)) {
+    if (state & MOVING && health > 0) {
         if (!((state ^ UP) & 0x3)) {
             dstrect.y -= 4;
             hitbox.y -= 4;
