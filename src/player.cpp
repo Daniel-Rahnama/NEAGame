@@ -4,8 +4,6 @@
 #include <iostream>
 
 void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
-    health -= .1;
-    
     if (state & MOVING) {
         if (!((state ^ UP) & 0x3)) {
             dstrect.y -= 4;
@@ -13,15 +11,15 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
 
             if (dstrect.y < 0) {
                 dstrect.y = 0;
-                hitbox.y = dstrect.y + ((state & ATTACKING) ? 224 : 96);
+                hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
                     if (Collision(e)) {
-                        dstrect.y = (e->DSTRect().y - (e->DSTRect().h - hitbox.h)) - ((state & ATTACKING) ? 128 : 0);
-                        hitbox.y = dstrect.y + ((state & ATTACKING) ? 224 : 96);
+                        dstrect.y = (e->DSTRect().y - (e->DSTRect().h - hitbox.h)) - ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
                         break;
                     }
                 }
@@ -43,15 +41,15 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
 
             if (dstrect.x < 0) {
                 dstrect.x = 0;
-                hitbox.x = dstrect.x + ((state & ATTACKING) ? 160 : 32);
+                hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
                     if (Collision(e)) {
-                        dstrect.x = (e->DSTRect().x + 32) - ((state & ATTACKING) ? 128 : 0);
-                        hitbox.x = dstrect.x + ((state & ATTACKING) ? 160 : 32);
+                        dstrect.x = (e->DSTRect().x + 32) - ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
                         break;
                     }
                 }
@@ -73,15 +71,15 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
 
             if (dstrect.y > camera.h - dstrect.h) {
                 dstrect.y = camera.h - dstrect.h;
-                hitbox.y = dstrect.y + ((state & ATTACKING) ? 224 : 96);
+                hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
                     if (Collision(e)) {
-                        dstrect.y = (e->DSTRect().y - dstrect.h) + ((state & ATTACKING) ? 128 : 0);
-                        hitbox.y = dstrect.y + ((state & ATTACKING) ? 224 : 96);
+                        dstrect.y = (e->DSTRect().y - dstrect.h) + ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
                         break;
                     }
                 }
@@ -103,15 +101,15 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
 
             if (dstrect.x > camera.w - dstrect.w) {
                 dstrect.x = camera.w - dstrect.w;
-                hitbox.x = dstrect.x + ((state & ATTACKING) ? 160 : 32);
+                hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
                 for (Entity*& e : entities[l]) {
                     if (e == nullptr) continue;
                     if (Collision(e)) {
-                        dstrect.x = (e->DSTRect().x - (e->DSTRect().w + 32)) - ((state & ATTACKING) ? 128 : 0);
-                        hitbox.x = dstrect.x + ((state & ATTACKING) ? 160 : 32);
+                        dstrect.x = (e->DSTRect().x - (e->DSTRect().w + 32)) - ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
                         break;
                     }
                 }

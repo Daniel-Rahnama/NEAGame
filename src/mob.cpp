@@ -3,6 +3,10 @@
 #include <iostream>
 #include <cassert>
 
+// BUG: MOB IS USING VALUES FOR WHEN THE PLAYER IS ATTACKING BEFORE THE ATTACKING ANIMATION HAS BEGUN
+// THIS IS DUE TO THE MOB UPDATING POSITION BEFORE ANIMATION.
+// UPDATE SHOULD INSTEAD CHECK THE ANIMATION STATE OF THE MOB.
+
 Mob::Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer)
     : Entity(spritesheet, {0, 512, 64, 64}, dstrect), state(state), layer(layer) {
     if (!((state ^ UP) & 0x3)) srcrect.y = 512;
@@ -19,7 +23,29 @@ Mob::Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned i
 }
 
 void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
-    if (state & ATTACKING) {
+    if (health <= 0) {
+        if (srcrect.y == 1280) {
+            if (srcrect.x >= 320) {
+                state |= DEAD;
+            } else {
+                srcrect.x += 64;
+            }
+        } else {
+            if (srcrect.y >= 1344) {
+                state &= ~ATTACKING;
+                
+                srcrect.w = 64;
+                srcrect.h = 64;
+
+                dstrect.x += 128;
+                dstrect.y += 128;
+                dstrect.w = 128;
+                dstrect.h = 128;
+            }
+            srcrect.y = 1280;
+            srcrect.x = 0;
+        }
+    } else if (state & ATTACKING) {
         if (srcrect.y >= 1344) { // IF ALREADY ATTACKING
             if (srcrect.x >= 960) { // IF ATTACK ANIMATION IS DONE
                 srcrect.x = (state & MOVING) ? 64 : 0;
@@ -86,14 +112,16 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
 }
 
 void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
-    if (state & MOVING) {
+    health -= 1;
+    
+    if (state & MOVING && !(state & DEAD)) {
         if (!((state ^ UP) & 0x3)) {
             dstrect.y -= 4;
             hitbox.y -= 4;
 
             if (dstrect.y < 0) {
                 dstrect.y = 0;
-                hitbox.y = dstrect.y + (state & ATTACKING) ? 288 : 96;
+                hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -101,7 +129,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.y = e->DSTRect().y - (e->DSTRect().h - hitbox.h);
-                        hitbox.y = dstrect.y + (state & ATTACKING) ? 288 : 96;
+                        hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
                     }
                 }
             }
@@ -112,7 +140,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
 
             if (dstrect.x < 0) {
                 dstrect.x = 0;
-                hitbox.x = dstrect.x + (state & ATTACKING) ? 224 : 96;
+                hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -120,7 +148,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.x = e->DSTRect().x + ((dstrect.w - hitbox.w) / 2);
-                        hitbox.x = dstrect.x + (state & ATTACKING) ? 224 : 96;
+                        hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
                     }
                 }
             }
@@ -131,7 +159,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
             
             if (dstrect.y > camera.h - dstrect.h) {
                 dstrect.y = camera.h - dstrect.h;
-                hitbox.y = dstrect.y + (state & ATTACKING) ? 288 : 96;
+                hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -139,7 +167,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.y = e->DSTRect().y - dstrect.h;
-                        hitbox.y = dstrect.y + (state & ATTACKING) ? 288 : 96;
+                        hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
                     }
                 }
             }
@@ -150,7 +178,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
 
             if (dstrect.x > camera.w - dstrect.w) {
                 dstrect.x = camera.w - dstrect.w;
-                hitbox.x = dstrect.x + (state & ATTACKING) ? 224 : 96;
+                hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
             }
 
             for (int l = layer+1; l < entities.size(); l++) {
@@ -158,7 +186,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                     if (e == nullptr) continue;
                     if (Collision(e)) {
                         dstrect.x = e->DSTRect().x - (e->DSTRect().w + ((dstrect.w - hitbox.w) / 2));
-                        hitbox.x = dstrect.x + (state & ATTACKING) ? 224 : 96;
+                        hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
                     }
                 }
             }

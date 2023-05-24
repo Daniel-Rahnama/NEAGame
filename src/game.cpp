@@ -5,6 +5,7 @@
 #include <vector>
 #include <cassert>
 #include <bitset>
+#include <algorithm>
 
 #include "entity.hpp"
 #include "mob.hpp"
@@ -28,9 +29,9 @@ void Game::Run() {
 
     player = &e;
 
-    Player e2(t, UP | MOVING, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 0);
+    Mob* e2 = new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 0);
 
-    mobs.push_back(&e2);
+    mobs.push_back(e2);
 
     uint8_t TargetFrameDuration = 1000 / appdata->TargetFPS();
     uint8_t FrameDuration;
@@ -48,13 +49,7 @@ void Game::Run() {
 
         controller->HandleInput(running, e.state);
 
-        // std::bitset<sizeof(e.state) * 8> state(e.state);
-
-        // std::cout << state << std::endl;
-
         Update(running, FrameCount, e);
-
-        std::cout << e.Health() << std::endl;
 
         renderer->Render(entities, mobs, player, camera);
 
@@ -88,7 +83,7 @@ void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
         m->Update(appdata, entities, camera);
         if (!(FrameCount % 5)) m->UpdateAnimation(appdata);
 
-        if (m->Health() <= 0) {
+        if (m->state & DEAD) {
             delete m;
             mobs.erase(std::remove(mobs.begin(), mobs.end(), m), mobs.end());
         }

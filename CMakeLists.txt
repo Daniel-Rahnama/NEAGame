@@ -44,7 +44,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
 find_package(tmxparser REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tmxparser)
 
-find_package(wxWidgets CONFIG REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE wx::core wx::base)
-
 target_link_libraries(${PROJECT_NAME} PRIVATE pthread)

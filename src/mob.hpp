@@ -20,6 +20,8 @@ typedef enum {
     MOVING = 0x0004,
     /// @brief Player ATTACKING
     ATTACKING = 0x0008,
+    /// @brief Player DEAD
+    DEAD = 0x8000,
 } State;
 
 /// @brief Base class for all mobs
