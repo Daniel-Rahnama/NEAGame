@@ -42,7 +42,7 @@ public:
     /// @param appdata AppData shared pointer
     /// @param entities Game map
     /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
-    void Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera);
+    void Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera);
 
     /// @brief Getter for the layer the mob exists on
     /// @return Reference to the int representing the layer the mob exists on
@@ -57,11 +57,21 @@ public:
 
     /// @brief State of the mob
     uint16_t state;
+
+    /// @brief Mob Hit
+    /// @param damage Damage dealt to the mob when hit
+    void Hit(const double& damage);
 protected:
     /// @brief Collision detection for the mob's hitbox and an entity
     /// @param e Entity to check collision with
     /// @return 1 if collision, 0 if no collision
     bool Collision(Entity*& e);
+
+    /// @brief Collision detection for the mob's hitbox and a rectangle
+    /// @param m Mob to check collision with
+    /// @param r Rectangle to check collision with
+    /// @return 1 if collision, 0 if no collision
+    bool Collision(Mob*& m, const SDL_Rect& r);
 
     /// @brief Layer the mob exists on
     unsigned int layer;

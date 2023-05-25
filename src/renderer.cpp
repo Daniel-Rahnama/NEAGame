@@ -59,6 +59,11 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
             dstrects.emplace_back(SDL_Rect{ m->DSTRect().x - camera.x, m->DSTRect().y - camera.y, m->DSTRect().w, m->DSTRect().h });
             SDL_RenderCopy(renderer, m->Spritesheet(), &m->SRCRect(), &dstrects.back());
             SDL_RenderDrawLine(renderer, m->hitbox.x - camera.x, m->hitbox.y - camera.y, m->hitbox.x + m->hitbox.w - camera.x, m->hitbox.y + m->hitbox.h - camera.y);
+            
+            dstrects.emplace_back(SDL_Rect{ (m->hitbox.x - camera.x), (m->hitbox.y - camera.y - 80), (int)(64 * (m->Health() / 100)), 8 });
+            SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 0xaa);
+            SDL_RenderFillRect(renderer, &dstrects.back());
+            SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
         }
     }
 

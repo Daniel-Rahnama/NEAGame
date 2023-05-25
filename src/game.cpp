@@ -25,11 +25,11 @@ void Game::Run() {
     
     SDL_Texture* t = renderer->CreateTexture(appdata->Resources() + "/sprites/c1.png");
 
-    Player e(t, UP, { (camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128 }, 0);
+    Player e(t, UP, { (camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128 }, 1);
 
     player = &e;
 
-    Mob* e2 = new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 0);
+    Mob* e2 = new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 1);
 
     mobs.push_back(e2);
 
@@ -72,7 +72,7 @@ void Game::Run() {
 }
 
 void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
-    player.Update(appdata, entities, camera);
+    player.Update(appdata, entities, mobs, camera);
     if (!(FrameCount % 5)) player.UpdateAnimation(appdata);
 
     if (player.state & DEAD) {
@@ -80,7 +80,7 @@ void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
     }
 
     for (Mob*& m : mobs) {
-        m->Update(appdata, entities, camera);
+        m->Update(appdata, entities, mobs, camera);
         if (!(FrameCount % 5)) m->UpdateAnimation(appdata);
 
         if (m->state & DEAD) {

@@ -112,86 +112,123 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
     }
 }
 
-void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, SDL_Rect& camera) {
-    health -= 1;
-    
-    if (state & MOVING && health > 0) {
-        if (!((state ^ UP) & 0x3)) {
-            dstrect.y -= 4;
-            hitbox.y -= 4;
+void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
+    if (health > 0) {
+        if (state & MOVING) {
+            if (!((state ^ UP) & 0x3)) {
+                dstrect.y -= 4;
+                hitbox.y -= 4;
 
-            if (dstrect.y < 0) {
-                dstrect.y = 0;
-                hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
-            }
+                if (dstrect.y < 0) {
+                    dstrect.y = 0;
+                    hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                }
 
-            for (int l = layer+1; l < entities.size(); l++) {
-                for (Entity*& e : entities[l]) {
-                    if (e == nullptr) continue;
-                    if (Collision(e)) {
-                        dstrect.y = e->DSTRect().y - (e->DSTRect().h - hitbox.h);
-                        hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                for (int l = layer; l < entities.size(); l++) {
+                    for (Entity*& e : entities[l]) {
+                        if (e == nullptr) continue;
+                        if (Collision(e)) {
+                            dstrect.y = e->DSTRect().y - (e->DSTRect().h - hitbox.h);
+                            hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                        }
                     }
                 }
-            }
 
-        } else if (!((state ^ LEFT) & 0x3)) {
-            dstrect.x -= 4;
-            hitbox.x -= 4;
+            } else if (!((state ^ LEFT) & 0x3)) {
+                dstrect.x -= 4;
+                hitbox.x -= 4;
 
-            if (dstrect.x < 0) {
-                dstrect.x = 0;
-                hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
-            }
+                if (dstrect.x < 0) {
+                    dstrect.x = 0;
+                    hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                }
 
-            for (int l = layer+1; l < entities.size(); l++) {
-                for (Entity*& e : entities[l]) {
-                    if (e == nullptr) continue;
-                    if (Collision(e)) {
-                        dstrect.x = e->DSTRect().x + ((dstrect.w - hitbox.w) / 2);
-                        hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                for (int l = layer; l < entities.size(); l++) {
+                    for (Entity*& e : entities[l]) {
+                        if (e == nullptr) continue;
+                        if (Collision(e)) {
+                            dstrect.x = e->DSTRect().x + ((dstrect.w - hitbox.w) / 2);
+                            hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                        }
                     }
                 }
-            }
 
-        } else if (!((state ^ DOWN) & 0x3)) {
-            dstrect.y += 4;
-            hitbox.y += 4;
-            
-            if (dstrect.y > camera.h - dstrect.h) {
-                dstrect.y = camera.h - dstrect.h;
-                hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
-            }
+            } else if (!((state ^ DOWN) & 0x3)) {
+                dstrect.y += 4;
+                hitbox.y += 4;
+                
+                if (dstrect.y > camera.h - dstrect.h) {
+                    dstrect.y = camera.h - dstrect.h;
+                    hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                }
 
-            for (int l = layer+1; l < entities.size(); l++) {
-                for (Entity*& e : entities[l]) {
-                    if (e == nullptr) continue;
-                    if (Collision(e)) {
-                        dstrect.y = e->DSTRect().y - dstrect.h;
-                        hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                for (int l = layer; l < entities.size(); l++) {
+                    for (Entity*& e : entities[l]) {
+                        if (e == nullptr) continue;
+                        if (Collision(e)) {
+                            dstrect.y = e->DSTRect().y - dstrect.h;
+                            hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                        }
                     }
                 }
-            }
 
-        } else if (!((state ^ RIGHT) & 0x3)) {
-            dstrect.x += 4;
-            hitbox.x += 4;
+            } else if (!((state ^ RIGHT) & 0x3)) {
+                dstrect.x += 4;
+                hitbox.x += 4;
 
-            if (dstrect.x > camera.w - dstrect.w) {
-                dstrect.x = camera.w - dstrect.w;
-                hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
-            }
+                if (dstrect.x > camera.w - dstrect.w) {
+                    dstrect.x = camera.w - dstrect.w;
+                    hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                }
 
-            for (int l = layer+1; l < entities.size(); l++) {
-                for (Entity*& e : entities[l]) {
-                    if (e == nullptr) continue;
-                    if (Collision(e)) {
-                        dstrect.x = e->DSTRect().x - (e->DSTRect().w + ((dstrect.w - hitbox.w) / 2));
-                        hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                for (int l = layer; l < entities.size(); l++) {
+                    for (Entity*& e : entities[l]) {
+                        if (e == nullptr) continue;
+                        if (Collision(e)) {
+                            dstrect.x = e->DSTRect().x - (e->DSTRect().w + ((dstrect.w - hitbox.w) / 2));
+                            hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                        }
                     }
                 }
             }
         }
+        if (state & ATTACKING) {
+            if (!((state ^ UP) & 0x3)) {
+                SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 128, 256, 128 };
+                for (Mob*& m : mobs) {
+                    if (m == this) continue;
+                    if (Collision(m, swordHitbox)) {
+                        m->Hit(.5);
+                    }
+                }
+            } else if (!((state ^ LEFT) & 0x3)) {
+                SDL_Rect swordHitbox = { hitbox.x - 160, hitbox.y - 96, 256, 128 };
+                for (Mob*& m : mobs) {
+                    if (m == this) continue;
+                    if (Collision(m, swordHitbox)) {
+                        m->Hit(.5);
+                    }
+                }
+            } else if (!((state ^ DOWN) & 0x3)) {
+                SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 32, 256, 128 };
+                for (Mob*& m : mobs) {
+                    if (m == this) continue;
+                    if (Collision(m, swordHitbox)) {
+                        m->Hit(.5);
+                    }
+                }
+            } else if (!((state ^ RIGHT) & 0x3)) {
+                SDL_Rect swordHitbox = { hitbox.x - 32, hitbox.y - 96, 256, 128 };
+                for (Mob*& m : mobs) {
+                    if (m == this) continue;
+                    if (Collision(m, swordHitbox)) {
+                        m->Hit(.5);
+                    }
+                }
+            }
+        }
+    } else {
+        health = 0;
     }
 }
 
@@ -203,7 +240,16 @@ const double& Mob::Health() const {
     return health;
 }
 
+void Mob::Hit(const double& damage) {
+    health -= damage;
+}
+
 bool Mob::Collision(Entity*& e) {
     return ((hitbox.x < e->DSTRect().x + e->DSTRect().w) && (hitbox.x + hitbox.w > e->DSTRect().x)
             && (hitbox.y < e->DSTRect().y + e->DSTRect().h) && (hitbox.y + hitbox.h > e->DSTRect().y));
+}
+
+bool Mob::Collision(Mob*& m, const SDL_Rect& r) {
+    return ((r.x < m->hitbox.x + m->hitbox.w) && (r.x + r.w > m->hitbox.x)
+            && (r.y < m->hitbox.y + m->hitbox.h) && (r.y + r.h > m->hitbox.y));
 }
