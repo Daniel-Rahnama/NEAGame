@@ -133,7 +133,7 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             } else if (!((state ^ LEFT) & 0x3)) {
@@ -141,7 +141,7 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             } else if (!((state ^ DOWN) & 0x3)) {
@@ -149,7 +149,7 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             } else if (!((state ^ RIGHT) & 0x3)) {
@@ -157,12 +157,12 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             }
         }
     } else {
-        if (health < 0) health = 0;
+        health = 0;
     }
 }

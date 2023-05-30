@@ -20,14 +20,14 @@ Mob::Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned i
 
 void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
     if (health <= 0) {
-        if (srcrect.y == 1280) {
-            if (srcrect.x >= 320) {
+        if (srcrect.y == 1280) { // IF ALREADY DYING
+            if (srcrect.x >= 320) { // IF DEATH ANIMATION IS DONE
                 state |= DEAD;
             } else {
                 srcrect.x += 64;
             }
         } else {
-            if (srcrect.y >= 1344) {
+            if (srcrect.y >= 1344) { // IF ATTACKING
                 state &= ~ATTACKING;
                 
                 srcrect.w = 64;
@@ -198,7 +198,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             } else if (!((state ^ LEFT) & 0x3)) {
@@ -206,7 +206,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             } else if (!((state ^ DOWN) & 0x3)) {
@@ -214,7 +214,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             } else if (!((state ^ RIGHT) & 0x3)) {
@@ -222,7 +222,7 @@ void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vecto
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(.5);
+                        m->Hit(1);
                     }
                 }
             }
