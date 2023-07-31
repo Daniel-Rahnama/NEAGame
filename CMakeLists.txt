@@ -44,4 +44,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
 find_package(tmxparser REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tmxparser)
 
+find_package(jsoncpp CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE pthread)

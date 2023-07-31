@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
+void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
     if (health > 0) {
         if (state & MOVING) {
             if (!((state ^ UP) & 0x3)) {
@@ -26,14 +26,14 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                     }
                 }
 
-                camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
+                camera.y = dstrect.y - ((appdata.Height() - dstrect.h) / 2);
 
                 if (camera.y < 0) {
                     camera.y = 0;
                 }
 
-                if (camera.y > camera.h - appdata->Height()) {
-                    camera.y = camera.h - appdata->Height();
+                if (camera.y > camera.h - appdata.Height()) {
+                    camera.y = camera.h - appdata.Height();
                 }
 
             } else if (!((state ^ LEFT) & 0x3)) {
@@ -56,14 +56,14 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                     }
                 }
 
-                camera.x = dstrect.x - ((appdata->Width() - dstrect.w) / 2);
+                camera.x = dstrect.x - ((appdata.Width() - dstrect.w) / 2);
 
                 if (camera.x < 0) {
                     camera.x = 0;
                 }
 
-                if (camera.x > camera.w - appdata->Width()) {
-                    camera.x = camera.w - appdata->Width();
+                if (camera.x > camera.w - appdata.Width()) {
+                    camera.x = camera.w - appdata.Width();
                 }
 
             } else if (!((state ^ DOWN) & 0x3)) {
@@ -86,14 +86,14 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                     }
                 }
 
-                camera.y = dstrect.y - ((appdata->Height() - dstrect.h) / 2);
+                camera.y = dstrect.y - ((appdata.Height() - dstrect.h) / 2);
 
                 if (camera.y < 0) {
                     camera.y = 0;
                 }
 
-                if (camera.y > camera.h - appdata->Height()) {
-                    camera.y = camera.h - appdata->Height();
+                if (camera.y > camera.h - appdata.Height()) {
+                    camera.y = camera.h - appdata.Height();
                 }
 
             } else if (!((state ^ RIGHT) & 0x3)) {
@@ -116,14 +116,14 @@ void Player::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::ve
                     }
                 }
 
-                camera.x = dstrect.x - ((appdata->Width() - dstrect.w) / 2);
+                camera.x = dstrect.x - ((appdata.Width() - dstrect.w) / 2);
 
                 if (camera.x < 0) {
                     camera.x = 0;
                 }
 
-                if (camera.x > camera.w - appdata->Width()) {
-                    camera.x = camera.w - appdata->Width();
+                if (camera.x > camera.w - appdata.Width()) {
+                    camera.x = camera.w - appdata.Width();
                 }
             }
         }

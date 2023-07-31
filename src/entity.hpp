@@ -8,10 +8,10 @@
 class Entity {
 public:
     /// @brief Sets the spritesheet, source rectangle, and destination rectangle of the entity
-    /// @param spritesheet Reference to pointer to spritesheet of the entity
+    /// @param spritesheet Pointer to spritesheet of the entity
     /// @param srcrect Source rectangle of the entity on the spritesheet
     /// @param dstrect Destination rectangle of the entity on the screen
-    Entity(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect);
+    Entity(SDL_Texture* spritesheet, SDL_Rect srcrect, SDL_Rect dstrect);
 
     /// @brief Destructor
     ~Entity();
@@ -28,8 +28,8 @@ public:
     /// @return Destination rectangle of the entity on the screen
     SDL_Rect& DSTRect();
 protected:
-    /// @brief Reference to pointer to spritesheet of the entity
-    SDL_Texture*& spritesheet;
+    /// @brief Pointer to spritesheet of the entity
+    SDL_Texture* spritesheet;
 
     /// @brief Source rectangle of the entity on the spritesheet
     SDL_Rect srcrect; 

@@ -28,22 +28,20 @@ typedef enum {
 class Mob : public Entity {
 public:
     /// @brief Sets the spritesheet, source rectangle, destination rectangle, and layer of the mob, creates the hitbox
-    /// @param spritesheet Reference to pointer to spritesheet of the entity
+    /// @param spritesheet Pointer to spritesheet of the entity
     /// @param state State of the mob
     /// @param dstrect Destination rectangle of the entity on the screen
     /// @param layer Layer the mob exists on
-    Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer);
+    Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer);
 
     /// @brief Animates the mob
-    /// @param appdata AppData shared pointer
-    void UpdateAnimation(const std::unique_ptr<AppData>& appdata);
+    void UpdateAnimation();
 
     /// @brief Updates the position of the mob
-    /// @param appdata AppData shared pointer
     /// @param entities Game map
     /// @param mobs Game mobs
     /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
-    void Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera);
+    void Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera);
 
     /// @brief Getter for the layer the mob exists on
     /// @return Reference to the int representing the layer the mob exists on

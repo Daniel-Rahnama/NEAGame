@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cassert>
 
-Mob::Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer)
+Mob::Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer)
     : Entity(spritesheet, {0, 512, 64, 64}, dstrect), state(state), layer(layer) {
     if (!((state ^ UP) & 0x3)) srcrect.y = 512;
     else if (!((state ^ LEFT) & 0x3)) srcrect.y = 576;
@@ -18,7 +18,7 @@ Mob::Mob(SDL_Texture*& spritesheet, uint16_t state, SDL_Rect dstrect, unsigned i
     health = 100;
 }
 
-void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
+void Mob::UpdateAnimation() {
     if (health <= 0) {
         if (srcrect.y == 1280) { // IF ALREADY DYING
             if (srcrect.x >= 320) { // IF DEATH ANIMATION IS DONE
@@ -32,7 +32,7 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
                 
                 srcrect.w = 64;
                 srcrect.h = 64;
-
+                
                 dstrect.x += 128;
                 dstrect.y += 128;
                 dstrect.w = 128;
@@ -112,7 +112,7 @@ void Mob::UpdateAnimation(const std::unique_ptr<AppData> &appdata) {
     }
 }
 
-void Mob::Update(const std::unique_ptr<AppData>& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
+void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
     if (health > 0) {
         if (state & MOVING) {
             if (!((state ^ UP) & 0x3)) {

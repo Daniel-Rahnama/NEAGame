@@ -1,6 +1,6 @@
 #include "entity.hpp"
 
-Entity::Entity(SDL_Texture*& spritesheet, SDL_Rect srcrect, SDL_Rect dstrect) : spritesheet(spritesheet), srcrect(srcrect), dstrect(dstrect) {
+Entity::Entity(SDL_Texture* spritesheet, SDL_Rect srcrect, SDL_Rect dstrect) : spritesheet(spritesheet), srcrect(srcrect), dstrect(dstrect) {
 
 }
 

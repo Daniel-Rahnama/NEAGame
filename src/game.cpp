@@ -1,39 +1,54 @@
 #include "game.hpp"
 
 #include <thread>
-#include <iostream>
 #include <vector>
 #include <cassert>
 #include <bitset>
 #include <algorithm>
+#include <fstream>
+#include <json/json.h>
 
 #include "entity.hpp"
 #include "mob.hpp"
 
-Game::Game(const std::unique_ptr<AppData>& appdata, const std::unique_ptr<Renderer>& renderer, const std::unique_ptr<Controller>& controller, const std::unique_ptr<Mixer>& mixer)
+Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& mixer)
     : appdata(appdata), renderer(renderer), controller(controller), mixer(mixer) {
     LoadMap();
     
     camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
     camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
-    camera.x = (camera.w - appdata->Width()) / 2;
-    camera.y = (camera.h - appdata->Height()) / 2;
+    
+    SDL_Texture* t = renderer.CreateTexture(appdata.Resources() + "/sprites/c1.png");
+
+    player = new Player(t, UP, { (camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128 }, 1);
+
+    camera.x = player->DSTRect().x - ((appdata.Width() - player->DSTRect().w) / 2);
+
+    if (camera.x < 0) {
+        camera.x = 0;
+    }
+
+    if (camera.x > camera.w - appdata.Width()) {
+        camera.x = camera.w - appdata.Width();
+    }
+
+    camera.y = player->DSTRect().y - ((appdata.Height() - player->DSTRect().h) / 2);
+
+    if (camera.y < 0) {
+        camera.y = 0;
+    }
+
+    if (camera.y > camera.h - appdata.Height()) {
+        camera.y = camera.h - appdata.Height();
+    }
+
+    mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 1));
 }
 
 void Game::Run() {
-    if (appdata->Music()) mixer->Play();
-    
-    SDL_Texture* t = renderer->CreateTexture(appdata->Resources() + "/sprites/c1.png");
+    if (appdata.Music()) mixer.Play();
 
-    Player e(t, UP, { (camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128 }, 1);
-
-    player = &e;
-
-    Mob* e2 = new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 1);
-
-    mobs.push_back(e2);
-
-    uint8_t TargetFrameDuration = 1000 / appdata->TargetFPS();
+    uint8_t TargetFrameDuration = 1000 / appdata.TargetFPS();
     uint8_t FrameDuration;
 
     uint16_t FrameCount;
@@ -47,11 +62,11 @@ void Game::Run() {
     while (running) {
         FrameStart = SDL_GetTicks();
 
-        controller->HandleInput(running, e.state);
+        controller.HandleInput(running, player->state);
 
-        Update(running, FrameCount, e);
+        Update(running, FrameCount);
 
-        renderer->Render(entities, mobs, player, camera);
+        renderer.Render(entities, mobs, player, camera);
 
         FrameEnd = SDL_GetTicks();
 
@@ -60,7 +75,7 @@ void Game::Run() {
         FrameCount++;
 
         if (FrameEnd - TitleTimestamp >= 1000) {
-            renderer->UpdateWindowTitle(FrameCount);
+            renderer.UpdateWindowTitle(FrameCount);
             FrameCount = 0;
             TitleTimestamp = FrameEnd;
         }
@@ -71,17 +86,17 @@ void Game::Run() {
     }
 }
 
-void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
-    player.Update(appdata, entities, mobs, camera);
-    if (!(FrameCount % 5)) player.UpdateAnimation(appdata);
+void Game::Update(bool& running, uint16_t& FrameCount) {
+    player->Update(appdata, entities, mobs, camera);
+    if (!(FrameCount % 5)) player->UpdateAnimation();
 
-    if (player.state & DEAD) {
+    if (player->state & DEAD) {
         running = false;
     }
 
     for (Mob*& m : mobs) {
-        m->Update(appdata, entities, mobs, camera);
-        if (!(FrameCount % 5)) m->UpdateAnimation(appdata);
+        m->Update(entities, mobs, camera);
+        if (!(FrameCount % 5)) m->UpdateAnimation();
 
         if (m->state & DEAD) {
             delete m;
@@ -91,14 +106,14 @@ void Game::Update(bool& running, uint16_t& FrameCount, Player& player) {
 }
 
 void Game::LoadMap() {
-    tileMap.ParseFile(appdata->Resources() + "/tilemaps/map.tmx");
+    tileMap.ParseFile(appdata.Resources() + "/tilemaps/map.tmx");
 
     if (tileMap.HasError()) {
         throw (tileMap.GetErrorCode() + ": " + tileMap.GetErrorText()).c_str();
     }
 
     for (Tmx::Tileset* tileset : tileMap.GetTilesets()) {
-        tilesets[tileset->GetName()] = {tileset, renderer->CreateTexture(appdata->Resources() + tileset->GetImage()->GetSource())};
+        tilesets[tileset->GetName()] = {tileset, renderer.CreateTexture(appdata.Resources() + tileset->GetImage()->GetSource())};
     }
 
     for (int l = 0; l < tileMap.GetNumTileLayers(); l++) {

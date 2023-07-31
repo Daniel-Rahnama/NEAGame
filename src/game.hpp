@@ -20,11 +20,11 @@
 class Game {
 public:
     /// @brief Sets the appdata, renderer, controller, and mixer of the game, loads the map and entities
-    /// @param appdata Shared pointer to the appdata
-    /// @param renderer Shared pointer to the renderer
-    /// @param controller Shared pointer to the controller
-    /// @param mixer Shared pointer to the mixer
-    Game(const std::unique_ptr<AppData>& appdata, const std::unique_ptr<Renderer>& renderer, const std::unique_ptr<Controller>& controller, const std::unique_ptr<Mixer>& mixer);
+    /// @param appdata Reference to the appdata
+    /// @param renderer Reference to the renderer
+    /// @param controller Reference to the controller
+    /// @param mixer Reference to the mixer
+    Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& mixer);
     
     /// @brief Runs the game
     void Run();
@@ -33,7 +33,7 @@ public:
     /// @param running Reference to the running variable in game loop
     /// @param FrameCount Frame count reference
     /// @param player Reference to the player
-    void Update(bool& running, uint16_t& FrameCount, Player& player);
+    void Update(bool& running, uint16_t& FrameCount);
 private:
     /// @brief Loads the game map
     void LoadMap();
@@ -65,17 +65,17 @@ private:
     /// @brief Player
     Player* player;
 
-    /// @brief Shared pointer to the appdata
-    const std::unique_ptr<AppData>& appdata;
+    /// @brief Reference to the appdata
+    AppData& appdata;
 
-    /// @brief Shared pointer to the renderer
-    const std::unique_ptr<Renderer>& renderer;
+    /// @brief Reference to the renderer
+    Renderer& renderer;
 
-    /// @brief Shared pointer to the controller
-    const std::unique_ptr<Controller>& controller;
+    /// @brief Reference to the controller
+    Controller& controller;
 
-    /// @brief Shared pointer to the mixer
-    const std::unique_ptr<Mixer>& mixer;
+    /// @brief Reference to the mixer
+    Mixer& mixer;
 };
 
 #endif /* GAME_HPP */
