@@ -112,25 +112,35 @@ void Mob::UpdateAnimation() {
     }
 }
 
-void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
+void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, std::function<bool (const SDL_Rect&, const int&)>& EvaluatePlayerCollision, SDL_Rect& camera) {
     if (health > 0) {
         if (state & MOVING) {
             if (!((state ^ UP) & 0x3)) {
                 dstrect.y -= 4;
                 hitbox.y -= 4;
 
-                if (dstrect.y < 0) {
-                    dstrect.y = 0;
-                    hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                if (dstrect.y < ((srcrect.y >= 1344) ? -128 : 0)) {
+                    dstrect.y = ((srcrect.y >= 1344) ? -128 : 0);
+                    hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
                 }
 
                 for (int l = layer; l < entities.size(); l++) {
                     for (Entity*& e : entities[l]) {
                         if (e == nullptr) continue;
                         if (Collision(e)) {
-                            dstrect.y = e->DSTRect().y - (e->DSTRect().h - hitbox.h);
-                            hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                            dstrect.y = (e->DSTRect().y - (e->DSTRect().h - hitbox.h)) - ((srcrect.y >= 1344) ? 128 : 0);
+                            hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
+                            break;
                         }
+                    }
+                }
+                
+                for (Mob*& m : mobs) {
+                    if (m == nullptr || m == this) continue;
+                    if (Collision(m, hitbox)) {
+                        dstrect.y = (m->hitbox.y + m->hitbox.h + hitbox.h - dstrect.h) + ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
+                        break;
                     }
                 }
 
@@ -138,37 +148,57 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 dstrect.x -= 4;
                 hitbox.x -= 4;
 
-                if (dstrect.x < 0) {
-                    dstrect.x = 0;
-                    hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                if (dstrect.x < ((srcrect.y >= 1344) ? -128 : 0)) {
+                    dstrect.x = ((srcrect.y >= 1344) ? -128 : 0);
+                    hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
                 }
 
                 for (int l = layer; l < entities.size(); l++) {
                     for (Entity*& e : entities[l]) {
                         if (e == nullptr) continue;
                         if (Collision(e)) {
-                            dstrect.x = e->DSTRect().x + ((dstrect.w - hitbox.w) / 2);
-                            hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                            dstrect.x = (e->DSTRect().x + 32) - ((srcrect.y >= 1344) ? 128 : 0);
+                            hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
+                            break;
                         }
+                    }
+                }
+                
+                for (Mob*& m : mobs) {
+                    if (m == nullptr || m == this) continue;
+                    if (Collision(m, hitbox)) {
+                        dstrect.x = (m->hitbox.x + 32) - ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
+                        break;
                     }
                 }
 
             } else if (!((state ^ DOWN) & 0x3)) {
                 dstrect.y += 4;
                 hitbox.y += 4;
-                
-                if (dstrect.y > camera.h - dstrect.h) {
-                    dstrect.y = camera.h - dstrect.h;
-                    hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+
+                if (dstrect.y > camera.h - dstrect.h + ((srcrect.y >= 1344) ? 128 : 0)) {
+                    dstrect.y = camera.h - dstrect.h + ((srcrect.y >= 1344) ? 128 : 0);
+                    hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
                 }
 
                 for (int l = layer; l < entities.size(); l++) {
                     for (Entity*& e : entities[l]) {
                         if (e == nullptr) continue;
                         if (Collision(e)) {
-                            dstrect.y = e->DSTRect().y - dstrect.h;
-                            hitbox.y = dstrect.y + (srcrect.y >= 1344) ? 288 : 96;
+                            dstrect.y = (e->DSTRect().y - dstrect.h) + ((srcrect.y >= 1344) ? 128 : 0);
+                            hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
+                            break;
                         }
+                    }
+                }
+
+                for (Mob*& m : mobs) {
+                    if (m == nullptr || m == this) continue;
+                    if (Collision(m, hitbox)) {
+                        dstrect.y = (m->hitbox.y - dstrect.h) + ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
+                        break;
                     }
                 }
 
@@ -176,25 +206,36 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 dstrect.x += 4;
                 hitbox.x += 4;
 
-                if (dstrect.x > camera.w - dstrect.w) {
-                    dstrect.x = camera.w - dstrect.w;
-                    hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                if (dstrect.x > camera.w - dstrect.w + ((srcrect.y >= 1344) ? 128 : 0)) {
+                    dstrect.x = camera.w - dstrect.w + ((srcrect.y >= 1344) ? 128 : 0);
+                    hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
                 }
 
                 for (int l = layer; l < entities.size(); l++) {
                     for (Entity*& e : entities[l]) {
                         if (e == nullptr) continue;
                         if (Collision(e)) {
-                            dstrect.x = e->DSTRect().x - (e->DSTRect().w + ((dstrect.w - hitbox.w) / 2));
-                            hitbox.x = dstrect.x + (srcrect.y >= 1344) ? 224 : 96;
+                            dstrect.x = (e->DSTRect().x - (e->DSTRect().w + 32)) - ((srcrect.y >= 1344) ? 128 : 0);
+                            hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
+                            break;
                         }
                     }
                 }
+
+                for (Mob*& m : mobs) {
+                    if (m == nullptr || m == this) continue;
+                    if (Collision(m, hitbox)) {
+                        dstrect.x = (m->hitbox.x - (m->hitbox.w + 32)) - ((srcrect.y >= 1344) ? 128 : 0);
+                        hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
+                        break;
+                    }
+                }                           
             }
         }
         if (state & ATTACKING) {
             if (!((state ^ UP) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 128, 256, 128 };
+                EvaluatePlayerCollision(swordHitbox, 1);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
@@ -203,6 +244,7 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 }
             } else if (!((state ^ LEFT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 160, hitbox.y - 96, 256, 128 };
+                EvaluatePlayerCollision(swordHitbox, 1);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
@@ -211,6 +253,7 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 }
             } else if (!((state ^ DOWN) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 32, 256, 128 };
+                EvaluatePlayerCollision(swordHitbox, 1);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
@@ -219,6 +262,7 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 }
             } else if (!((state ^ RIGHT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 32, hitbox.y - 96, 256, 128 };
+                EvaluatePlayerCollision(swordHitbox, 1);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {

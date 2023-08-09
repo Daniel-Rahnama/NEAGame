@@ -40,8 +40,9 @@ public:
     /// @brief Updates the position of the mob
     /// @param entities Game map
     /// @param mobs Game mobs
+    /// @param EvaluatePlayerCollision Function to evaluate whether a rectangle collides with the Player
     /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
-    void Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera);
+    void Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, std::function<bool (const SDL_Rect&, const int&)>& EvaluatePlayerCollision, SDL_Rect& camera);
 
     /// @brief Getter for the layer the mob exists on
     /// @return Reference to the int representing the layer the mob exists on

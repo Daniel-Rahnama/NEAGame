@@ -6,6 +6,7 @@
 #include <bitset>
 #include <algorithm>
 #include <fstream>
+#include <functional>
 #include <json/json.h>
 
 #include "entity.hpp"
@@ -64,6 +65,8 @@ void Game::Run() {
 
         controller.HandleInput(running, player->state);
 
+        UpdateState();
+
         Update(running, FrameCount);
 
         renderer.Render(entities, mobs, player, camera);
@@ -87,22 +90,47 @@ void Game::Run() {
 }
 
 void Game::Update(bool& running, uint16_t& FrameCount) {
-    player->Update(appdata, entities, mobs, camera);
     if (!(FrameCount % 5)) player->UpdateAnimation();
+    player->Update(appdata, entities, mobs, camera);
 
     if (player->state & DEAD) {
         running = false;
     }
 
+    using namespace std::placeholders;
+    
+    static std::function<bool (const SDL_Rect&, const int&)> EvaluatePlayerCollision = std::bind(Player::EvaluateCollision, player, _1, _2);
+
     for (Mob*& m : mobs) {
-        m->Update(entities, mobs, camera);
         if (!(FrameCount % 5)) m->UpdateAnimation();
+        m->Update(entities, mobs, EvaluatePlayerCollision, camera);
 
         if (m->state & DEAD) {
             delete m;
             mobs.erase(std::remove(mobs.begin(), mobs.end(), m), mobs.end());
         }
     }
+}
+
+void Game::UpdateState() {
+    std::vector<std::future<void>> futures;
+
+    for (Mob*& mob : mobs) {
+        futures.push_back(std::async(std::launch::async, [&mob, this]() -> void {
+            int x = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
+            int y = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
+
+            mob->state = (sqrt((x * x) + (y * y)) > 64) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ATTACKING);
+
+            if (abs(x) > abs(y)) {
+                mob->state = (x > 0) ? (mob->state & ~(0x2) | (0x1)) : (mob->state | (0x3));
+            } else {
+                mob->state = (y > 0) ? (mob->state & ~(0x3)) : (mob->state & ~(0x1) | (0x2));
+            }
+        }));
+    }
+
+    for (std::future<void>& future : futures) future.wait();
 }
 
 void Game::LoadMap() {

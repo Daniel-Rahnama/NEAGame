@@ -3,13 +3,12 @@
 
 #include "SDL2/SDL.h"
 #include "Tmx.h"
-
+#include "player.hpp"
 #include "renderer.hpp"
 #include "controller.hpp"
 #include "mixer.hpp"
 #include "appdata.hpp"
 #include "mob.hpp"
-#include "player.hpp"
 
 #include <string>
 #include <memory>
@@ -35,6 +34,9 @@ public:
     /// @param player Reference to the player
     void Update(bool& running, uint16_t& FrameCount);
 private:
+    /// @brief Changes the Mob's state
+    void UpdateState();
+
     /// @brief Loads the game map
     void LoadMap();
 
