@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <iostream>
 #include <algorithm>
+#include <functional>
 
 #include "entity.hpp"
 #include "mob.hpp"
@@ -57,14 +58,18 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
 
     bool playerRendered = false;
 
+    static std::function<void ()> renderPlayer = [&player, &playerRendered, &camera, &dstrects, this]() -> void {
+        dstrects.emplace_back(SDL_Rect{ player->DSTRect().x - camera.x, player->DSTRect().y - camera.y, player->DSTRect().w, player->DSTRect().h });
+        SDL_RenderCopy(renderer, player->Spritesheet(), &player->SRCRect(), &dstrects.back());
+        SDL_RenderDrawLine(renderer, player->hitbox.x - camera.x, player->hitbox.y - camera.y, player->hitbox.x + player->hitbox.w - camera.x, player->hitbox.y + player->hitbox.h - camera.y);
+        playerRendered = true;
+    };
+
     for (Mob*& m : mobs) {
         if ((camera.x < m->DSTRect().x + m->DSTRect().w) && (camera.x + appdata.Width() > m->DSTRect().x)
             && (camera.y < m->DSTRect().y + m->DSTRect().h) && (camera.y + appdata.Height() > m->DSTRect().y)) {
             if ((m->DSTRect().y + (m->DSTRect().w/2) > player->DSTRect().y + (player->DSTRect().w/2)) && !playerRendered) {
-                dstrects.emplace_back(SDL_Rect{ player->DSTRect().x - camera.x, player->DSTRect().y - camera.y, player->DSTRect().w, player->DSTRect().h });
-                SDL_RenderCopy(renderer, player->Spritesheet(), &player->SRCRect(), &dstrects.back());
-                SDL_RenderDrawLine(renderer, player->hitbox.x - camera.x, player->hitbox.y - camera.y, player->hitbox.x + player->hitbox.w - camera.x, player->hitbox.y + player->hitbox.h - camera.y);
-                playerRendered = true;
+                renderPlayer();
             }
 
             dstrects.emplace_back(SDL_Rect{ m->DSTRect().x - camera.x, m->DSTRect().y - camera.y, m->DSTRect().w, m->DSTRect().h });
@@ -78,12 +83,8 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
         }
     }
 
-    if (!playerRendered) {
-        dstrects.emplace_back(SDL_Rect{ player->DSTRect().x - camera.x, player->DSTRect().y - camera.y, player->DSTRect().w, player->DSTRect().h });
-        SDL_RenderCopy(renderer, player->Spritesheet(), &player->SRCRect(), &dstrects.back());
-        SDL_RenderDrawLine(renderer, player->hitbox.x - camera.x, player->hitbox.y - camera.y, player->hitbox.x + player->hitbox.w - camera.x, player->hitbox.y + player->hitbox.h - camera.y);
-    }
-
+    if (!playerRendered) renderPlayer();
+    
     SDL_Rect hBarOutline { (appdata.Width() - 800) / 2, appdata.Height() - 100, 800, 50 };
     SDL_Rect hBar { (appdata.Width() - 800) / 2, appdata.Height() - 100, (int)(8 * (player->Health())), 50 };
 

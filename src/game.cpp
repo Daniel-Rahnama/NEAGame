@@ -21,7 +21,7 @@ Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& 
     
     SDL_Texture* t = renderer.CreateTexture(appdata.Resources() + "/sprites/c1.png");
 
-    player = new Player(t, UP, { (camera.w - 128) / 2 , (camera.h - 128) / 2 , 128, 128 }, 1);
+    player = new Player(t, UP, { ((camera.w - 128) / 2), ((camera.h - 128) / 2), 128, 128 }, 1);
 
     camera.x = player->DSTRect().x - ((appdata.Width() - player->DSTRect().w) / 2);
 
@@ -43,7 +43,7 @@ Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& 
         camera.y = camera.h - appdata.Height();
     }
 
-    mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2) + 200, 128, 128 }, 1));
+    mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2), 128, 128 }, 1));
 }
 
 void Game::Run() {
@@ -63,7 +63,7 @@ void Game::Run() {
     while (running) {
         FrameStart = SDL_GetTicks();
 
-        controller.HandleInput(running, player->state);
+        controller.HandleInput(running, player);
 
         UpdateState();
 
@@ -90,7 +90,7 @@ void Game::Run() {
 }
 
 void Game::Update(bool& running, uint16_t& FrameCount) {
-    if (!(FrameCount % 5)) player->UpdateAnimation();
+    player->UpdateAnimation(FrameCount);
     player->Update(appdata, entities, mobs, camera);
 
     if (player->state & DEAD) {
@@ -102,7 +102,7 @@ void Game::Update(bool& running, uint16_t& FrameCount) {
     static std::function<bool (const SDL_Rect&, const int&)> EvaluatePlayerCollision = std::bind(Player::EvaluateCollision, player, _1, _2);
 
     for (Mob*& m : mobs) {
-        if (!(FrameCount % 5)) m->UpdateAnimation();
+        m->UpdateAnimation(FrameCount);
         m->Update(entities, mobs, EvaluatePlayerCollision, camera);
 
         if (m->state & DEAD) {
@@ -120,7 +120,7 @@ void Game::UpdateState() {
             int x = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
             int y = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
 
-            mob->state = (sqrt((x * x) + (y * y)) > 64) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ATTACKING);
+            mob->state = ((sqrt((x * x) + (y * y)) > 64) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ((mob->Cooldown() <= 0) ? ATTACKING : 0)));
 
             if (abs(x) > abs(y)) {
                 mob->state = (x > 0) ? (mob->state & ~(0x2) | (0x1)) : (mob->state | (0x3));

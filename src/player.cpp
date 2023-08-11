@@ -168,28 +168,28 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 128, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(1);
+                        m->Hit(damage);
                     }
                 }
             } else if (!((state ^ LEFT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 160, hitbox.y - 96, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(1);
+                        m->Hit(damage);
                     }
                 }
             } else if (!((state ^ DOWN) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 32, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(1);
+                        m->Hit(damage);
                     }
                 }
             } else if (!((state ^ RIGHT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 32, hitbox.y - 96, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(1);
+                        m->Hit(damage);
                     }
                 }
             }
@@ -197,9 +197,10 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
     } else {
         health = 0;
     }
+    cooldown--;
 }
 
-bool Player::EvaluateCollision(const SDL_Rect &rect, const int &damage) {
+bool Player::EvaluateCollision(const SDL_Rect& rect, const int& damage) {
     if (Collision(rect)) {
         if (damage) Hit(damage);
         return true;

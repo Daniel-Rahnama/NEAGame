@@ -35,7 +35,8 @@ public:
     Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer);
 
     /// @brief Animates the mob
-    void UpdateAnimation();
+    /// @param FrameCount The frame number since the last full second
+    void UpdateAnimation(const int& FrameCount);
 
     /// @brief Updates the position of the mob
     /// @param entities Game map
@@ -61,6 +62,10 @@ public:
     /// @brief Mob Hit
     /// @param damage Damage dealt to the mob when hit
     void Hit(const double& damage);
+
+    /// @brief Returns the cooldown
+    /// @return Value of the cooldown
+    const int& Cooldown() const;
 protected:
     /// @brief Collision detection for the mob's hitbox and an entity
     /// @param e Entity to check collision with
@@ -78,6 +83,15 @@ protected:
 
     /// @brief Mob health out 100.00
     double health;
+
+    /// @brief Mob attack cooldown
+    int cooldown;
+
+    /// @brief Delay after each attack
+    int delay;
+
+    /// @brief Damage dealt by each attack
+    int damage;
 };
 
 #endif /* MOB_HPP */
