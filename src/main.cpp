@@ -1,13 +1,13 @@
 #include "main.hpp"
 
+#include <windows.h>
+#include <iostream>
+#include <memory>
+
 #include "appdata.hpp"
 #include "controller.hpp"
 #include "renderer.hpp"
 #include "game.hpp"
-
-#include <windows.h>
-#include <iostream>
-#include <memory>
 
 int SDL_main(int argc, char* argv[]) {
     try {

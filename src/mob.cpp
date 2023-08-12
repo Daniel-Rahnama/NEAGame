@@ -3,8 +3,8 @@
 #include <iostream>
 #include <cassert>
 
-Mob::Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer)
-    : Entity(spritesheet, {0, 512, 64, 64}, dstrect), state(state), layer(layer) {
+Mob::Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsigned int& layer)
+    : Entity(spritesheet, {0, 512, 64, 64}, dstrect, layer), state(state) {
     if (!((state ^ UP) & 0x3)) srcrect.y = 512;
     else if (!((state ^ LEFT) & 0x3)) srcrect.y = 576;
     else if (!((state ^ DOWN) & 0x3)) srcrect.y = 640;
@@ -45,7 +45,7 @@ void Mob::UpdateAnimation(const int& FrameCount) {
             srcrect.y = 1280;
             srcrect.x = 0;
         }
-    } else if (state & ATTACKING && !(FrameCount % 2)) {
+    } else if (state & ATTACKING && !(FrameCount % 2) && health > 0) {
         if (srcrect.y >= 1344) { // IF ALREADY ATTACKING
             if (srcrect.x >= 960) { // IF ATTACK ANIMATION IS DONE
                 srcrect.x = (state & MOVING) ? 64 : 0;
@@ -283,10 +283,6 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
         health = 0;
     }
     cooldown--;
-}
-
-const unsigned int& Mob::Layer() const {
-    return layer;
 }
 
 const double& Mob::Health() const {

@@ -24,6 +24,9 @@ public:
     /// @param controller Reference to the controller
     /// @param mixer Reference to the mixer
     Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& mixer);
+
+    /// @brief Game Deconstructor
+    ~Game();
     
     /// @brief Runs the game
     void Run();
@@ -31,7 +34,6 @@ public:
     /// @brief Updates the game state every frame
     /// @param running Reference to the running variable in game loop
     /// @param FrameCount Frame count reference
-    /// @param player Reference to the player
     void Update(bool& running, uint16_t& FrameCount);
 private:
     /// @brief Changes the Mob's state

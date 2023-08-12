@@ -11,7 +11,7 @@ public:
     /// @param spritesheet Pointer to spritesheet of the entity
     /// @param srcrect Source rectangle of the entity on the spritesheet
     /// @param dstrect Destination rectangle of the entity on the screen
-    Entity(SDL_Texture* spritesheet, SDL_Rect srcrect, SDL_Rect dstrect);
+    Entity(SDL_Texture* spritesheet, SDL_Rect srcrect, SDL_Rect dstrect, const unsigned int& layer);
 
     /// @brief Destructor
     ~Entity();
@@ -27,6 +27,10 @@ public:
     /// @brief Destination Rectangle Getter
     /// @return Destination rectangle of the entity on the screen
     SDL_Rect& DSTRect();
+
+    /// @brief Getter for the layer the mob exists on
+    /// @return Reference to the int representing the layer the mob exists on
+    unsigned int& Layer();
 protected:
     /// @brief Pointer to spritesheet of the entity
     SDL_Texture* spritesheet;
@@ -36,6 +40,9 @@ protected:
 
     /// @brief Destination rectangle of the entity on the screen
     SDL_Rect dstrect;
+
+    /// @brief Layer entity exists on
+    unsigned int layer;
 };
 
 #endif /* ENTITY_HPP */

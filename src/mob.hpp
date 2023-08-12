@@ -32,7 +32,7 @@ public:
     /// @param state State of the mob
     /// @param dstrect Destination rectangle of the entity on the screen
     /// @param layer Layer the mob exists on
-    Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, unsigned int layer);
+    Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsigned int& layer);
 
     /// @brief Animates the mob
     /// @param FrameCount The frame number since the last full second
@@ -44,10 +44,6 @@ public:
     /// @param EvaluatePlayerCollision Function to evaluate whether a rectangle collides with the Player
     /// @param camera Rectangle representing the camera (x, y - Camera Position, w, h - Game Map Size)
     void Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, std::function<bool (const SDL_Rect&, const int&)>& EvaluatePlayerCollision, SDL_Rect& camera);
-
-    /// @brief Getter for the layer the mob exists on
-    /// @return Reference to the int representing the layer the mob exists on
-    const unsigned int& Layer() const;
 
     /// @brief Getter for the health of the mob
     /// @return Const reference to the double representing the health of the mob
@@ -77,9 +73,6 @@ protected:
     /// @param r Rectangle to check collision with
     /// @return 1 if collision, 0 if no collision
     bool Collision(Mob*& m, const SDL_Rect& r);
-
-    /// @brief Layer the mob exists on
-    unsigned int layer;
 
     /// @brief Mob health out 100.00
     double health;

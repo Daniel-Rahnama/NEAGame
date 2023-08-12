@@ -46,6 +46,12 @@ Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& 
     mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2), 128, 128 }, 1));
 }
 
+Game::~Game() {
+    for (std::vector<Entity*>& vector : entities) for (Entity*& entity : vector) delete entity;
+    for (Mob*& mob : mobs) delete mob;
+    delete player;
+}
+
 void Game::Run() {
     if (appdata.Music()) mixer.Play();
 
@@ -120,7 +126,7 @@ void Game::UpdateState() {
             int x = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
             int y = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
 
-            mob->state = ((sqrt((x * x) + (y * y)) > 64) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ((mob->Cooldown() <= 0) ? ATTACKING : 0)));
+            mob->state = ((sqrt((x * x) + (y * y)) > 128) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ((mob->Cooldown() <= 0) ? ATTACKING : 0)));
 
             if (abs(x) > abs(y)) {
                 mob->state = (x > 0) ? (mob->state & ~(0x2) | (0x1)) : (mob->state | (0x3));
@@ -141,20 +147,20 @@ void Game::LoadMap() {
     }
 
     for (Tmx::Tileset* tileset : tileMap.GetTilesets()) {
-        tilesets[tileset->GetName()] = {tileset, renderer.CreateTexture(appdata.Resources() + tileset->GetImage()->GetSource())};
+        tilesets[tileset->GetName()] = { tileset, renderer.CreateTexture(appdata.Resources() + tileset->GetImage()->GetSource()) };
     }
 
-    for (int l = 0; l < tileMap.GetNumTileLayers(); l++) {
+    for (int layer = 0; layer < tileMap.GetNumTileLayers(); layer++) {
         entities.emplace_back(std::vector<Entity*>());
         for (int x = 0; x < tileMap.GetWidth(); x++) {
             for (int y = 0; y < tileMap.GetHeight(); y++) {
-                if (tileMap.GetTileLayer(l)->GetTileId(x, y) == 0) continue;
-                Tmx::Tileset*& tileset = tilesets[tileMap.GetTileset(tileMap.GetTileLayer(l)->GetTile(x, y).tilesetId)->GetName()].tileset;
+                if (tileMap.GetTileLayer(layer)->GetTileId(x, y) == 0) continue;
+                Tmx::Tileset*& tileset = tilesets[tileMap.GetTileset(tileMap.GetTileLayer(layer)->GetTile(x, y).tilesetId)->GetName()].tileset;
                 int tilesPerRow = tileset->GetImage()->GetWidth() / tileset->GetTileWidth();
-                int rows = (tileMap.GetTileLayer(l)->GetTileId(x, y)) / tilesPerRow;
-                SDL_Rect srcrect = { (int)((tileMap.GetTileLayer(l)->GetTileId(x, y) - (rows * tilesPerRow)) * tileset->GetTileWidth()), rows * tileset->GetTileHeight(), tileset->GetTileWidth(), tileset->GetTileHeight() };
+                int rows = (tileMap.GetTileLayer(layer)->GetTileId(x, y)) / tilesPerRow;
+                SDL_Rect srcrect = { (int)((tileMap.GetTileLayer(layer)->GetTileId(x, y) - (rows * tilesPerRow)) * tileset->GetTileWidth()), rows * tileset->GetTileHeight(), tileset->GetTileWidth(), tileset->GetTileHeight() };
                 SDL_Rect dstrect = { x * tileset->GetTileWidth() * 2, y * tileset->GetTileHeight() * 2, tileset->GetTileWidth() * 2, tileset->GetTileHeight() * 2 };
-                entities[l].emplace_back(new Entity(tilesets[tileset->GetName()].texture, srcrect, dstrect));
+                entities[layer].emplace_back(new Entity(tilesets[tileset->GetName()].texture, srcrect, dstrect, layer));
             }
         }
     }
