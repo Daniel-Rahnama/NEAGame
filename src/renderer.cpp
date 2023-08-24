@@ -98,7 +98,7 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
 }
 
 void Renderer::UpdateWindowTitle(const int& FPS) {
-    SDL_SetWindowTitle(window, ("Game - FPS: " + std::to_string(FPS)).c_str());
+    SDL_SetWindowTitle(window, ("Game - " + appdata.PlayerUsername() + " - FPS: " + std::to_string(FPS)).c_str());
 }
 
 SDL_Texture* Renderer::CreateTexture(const std::string& spritesheet) {

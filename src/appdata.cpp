@@ -5,7 +5,10 @@
 #include <cstring>
 #include <iostream>
 
-AppData::AppData() {
+AppData::AppData(const std::string& playerUsername, const std::string& playerSpritesheet) 
+    : playerUsername(playerUsername), playerSpritesheet(playerSpritesheet) {
+
+
     appdata = (std::string)getenv("APPDATA") + "/NEAGame";
 
     settingsFile.open(appdata + "/settings.json", std::fstream::in);
@@ -50,7 +53,10 @@ AppData::AppData() {
         settingsFile.open(appdata + "/settings.json", std::fstream::trunc | std::fstream::out);
         settingsFile << settingsJSON;
         settingsFile.close();
-    }
+    }    
+    
+    if (playerUsername == "") this->playerUsername = "Default User";
+    if (playerSpritesheet == "") this->playerSpritesheet = resources + "/sprites/c1.png";
 }
 
 const std::string& AppData::Path() const {
@@ -79,4 +85,12 @@ const uint8_t& AppData::TargetFPS() const {
 
 const std::string& AppData::Resources() const {
     return resources;
+}
+
+const std::string& AppData::PlayerUsername() const {
+    return playerUsername;
+}
+
+const std::string& AppData::PlayerSpritesheet() const {
+    return playerSpritesheet;
 }

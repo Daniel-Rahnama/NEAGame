@@ -19,7 +19,7 @@ Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& 
     camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
     camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
     
-    SDL_Texture* t = renderer.CreateTexture(appdata.Resources() + "/sprites/c1.png");
+    SDL_Texture* t = renderer.CreateTexture(appdata.PlayerSpritesheet());
 
     player = new Player(t, UP, { ((camera.w - 128) / 2), ((camera.h - 128) / 2), 128, 128 }, 1);
 
