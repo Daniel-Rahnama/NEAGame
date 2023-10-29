@@ -1,5 +1,6 @@
 #include "game.hpp"
 
+#include <iostream>
 #include <thread>
 #include <vector>
 #include <cassert>
@@ -43,7 +44,7 @@ Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& 
         camera.y = camera.h - appdata.Height();
     }
 
-    mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2), 128, 128 }, 1));
+    mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 500, ((camera.h - 128) / 2), 128, 128 }, 1));
 
     for (Mob*& m : mobs) {
         m->route = GeneratePath(m);
@@ -157,10 +158,11 @@ void Game::UpdateState() {
             }
 
             if (nextNode.x - currentNode.x == -1) (mob->state & ~(0x2) | (0x1));
-            else if (nextNode.x - currentNode.x == 1) ((mob->state | (0x3)));
+            else if (nextNode.x - currentNode.x == 1) (mob->state | (0x3));
             else if (nextNode.y - currentNode.y == -1) (mob->state & ~(0x3));
             else if (nextNode.y - currentNode.y == 1) (mob->state & ~(0x1) | (0x2));
 
+            mob->state |= MOVING;
         }));
     }
 
@@ -168,10 +170,10 @@ void Game::UpdateState() {
 }
 
 std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
-    std::vector<std::vector<unsigned int>> score;
-    std::vector<std::vector<unsigned int>> hScore;
-    std::vector<std::vector<bool>> visited;
-    std::vector<std::vector<SDL_Point>> routeToNode;
+    std::vector<std::vector<unsigned int>> score(tileMap.GetWidth(), std::vector<unsigned int>(tileMap.GetHeight()));
+    std::vector<std::vector<unsigned int>> hScore(tileMap.GetWidth(), std::vector<unsigned int>(tileMap.GetHeight()));
+    std::vector<std::vector<bool>> visited(tileMap.GetWidth(), std::vector<bool>(tileMap.GetHeight()));
+    std::vector<std::vector<SDL_Point>> routeToNode(tileMap.GetWidth(), std::vector<SDL_Point>(tileMap.GetHeight()));
 
     for (int x = 0; x < tileMap.GetWidth(); x++) {
         for (int y = 0; y < tileMap.GetHeight(); y++) {
@@ -181,8 +183,8 @@ std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
         }
     }
 
-    SDL_Point startNode(mob->DSTRect().w / 64, mob->DSTRect().h / 64);
-    SDL_Point targetNode(player->DSTRect().w / 64, player->DSTRect().h / 64);
+    SDL_Point startNode(mob->DSTRect().x / 64, mob->DSTRect().y / 64);
+    SDL_Point targetNode(player->DSTRect().x / 64, player->DSTRect().y / 64);
 
     score[startNode.x][startNode.y] = 0;
     hScore[startNode.x][startNode.y] = 0;
@@ -203,7 +205,7 @@ std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
                 if (newScore < score[nextNode.x][nextNode.y]) {
                     score[nextNode.x][nextNode.y] = newScore;
                     hScore[nextNode.x][nextNode.y] = newScore + (abs(nextNode.x - targetNode.x) + abs(nextNode.y - targetNode.y));
-                    routeToNode[nextNode.x][nextNode.y] = currentNode;
+                    routeToNode[nextNode.x][nextNode.y] = SDL_Point(currentNode);
                 }
             }
         }
@@ -232,11 +234,13 @@ std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
 
 SDL_Point Game::LowestScoreNode(const std::vector<std::vector<unsigned int>>& hScore, const std::vector<std::vector<bool>>& visited) {
     SDL_Point result;
+    unsigned int resultHScore = -1;
     
     for (int x = 0; x < tileMap.GetWidth(); x++) {
         for (int y = 0; y < tileMap.GetHeight(); y++) {
-            if (!visited[x][y] && (hScore[x][y] < hScore[result.x][result.y])) {
+            if (!visited[x][y] && (hScore[x][y] <= resultHScore)) {
                 result = SDL_Point(x, y);
+                resultHScore = hScore[x][y];
             }
         }
     }

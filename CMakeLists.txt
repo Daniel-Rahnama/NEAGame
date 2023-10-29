@@ -39,7 +39,7 @@ find_package(ZLIB REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE ZLIB::ZLIB)
 
 find_package(PNG REQUIRED)
-target_link_libraries(main PRIVATE PNG::PNG)
+target_link_libraries(${PROJECT_NAME} PRIVATE PNG::PNG)
 
 find_package(tinyxml2 CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE tinyxml2::tinyxml2)
