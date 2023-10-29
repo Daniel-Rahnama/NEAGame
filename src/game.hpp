@@ -39,6 +39,14 @@ private:
     /// @brief Changes the Mob's state
     void UpdateState();
 
+    /// @brief Generates a path from the mob to the player using the A* pathfinding algorithm
+    /// @param mob Mob from which the path to the player should be generated
+    /// @return Path from the mob to the player
+    std::vector<SDL_Point> GeneratePath(Mob*& mob);
+
+    /// @brief Finds the node with lowest score for the A* pathfinding algorithm
+    SDL_Point LowestScoreNode(const std::vector<std::vector<unsigned int>>& hScore, const std::vector<std::vector<bool>>& visited);
+
     /// @brief Loads the game map
     void LoadMap();
 

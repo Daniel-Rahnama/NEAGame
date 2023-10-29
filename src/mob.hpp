@@ -62,6 +62,12 @@ public:
     /// @brief Returns the cooldown
     /// @return Value of the cooldown
     const int& Cooldown() const;
+
+    /// @brief Route to player
+    std::vector<SDL_Point> route;
+
+    /// @brief Frames since the last route update
+    int framesSinceRouteUpdate;
 protected:
     /// @brief Collision detection for the mob's hitbox and an entity
     /// @param e Entity to check collision with

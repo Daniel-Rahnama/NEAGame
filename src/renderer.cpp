@@ -13,10 +13,6 @@ Renderer::Renderer(AppData& appdata) : appdata(appdata) {
         throw SDL_GetError();
     }
 
-    if(TTF_Init() < 0) {
-        throw TTF_GetError();
-    }
-
     window = SDL_CreateWindow("Game", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, appdata.Width(), appdata.Height(), (appdata.Fullscreen() ? SDL_WINDOW_FULLSCREEN_DESKTOP : SDL_WINDOW_SHOWN));
 
     if (!window) {
@@ -54,7 +50,7 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
         }
     }
 
-    std::sort(mobs.begin(), mobs.end(), [](Mob*& a, Mob*& b) -> bool { return a->DSTRect().y > b->DSTRect().y; });
+    mobs = SortMobs(mobs);
 
     bool playerRendered = false;
 
@@ -68,7 +64,7 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
     for (Mob*& m : mobs) {
         if ((camera.x < m->DSTRect().x + m->DSTRect().w) && (camera.x + appdata.Width() > m->DSTRect().x)
             && (camera.y < m->DSTRect().y + m->DSTRect().h) && (camera.y + appdata.Height() > m->DSTRect().y)) {
-            if ((m->DSTRect().y + (m->DSTRect().w/2) > player->DSTRect().y + (player->DSTRect().w/2)) && !playerRendered) {
+            if ((m->DSTRect().y + (m->DSTRect().w / 2) > player->DSTRect().y + (player->DSTRect().w / 2)) && !playerRendered) {
                 renderPlayer();
             }
 
@@ -103,4 +99,67 @@ void Renderer::UpdateWindowTitle(const int& FPS) {
 
 SDL_Texture* Renderer::CreateTexture(const std::string& spritesheet) {
     return SDL_CreateTextureFromSurface(renderer, IMG_Load((spritesheet).c_str()));
+}
+
+std::vector<Mob*> Renderer::SortMobs(const std::vector<Mob*>& mobs) {
+    std::vector<Mob*> merged;
+
+    if (mobs.size() <= 1) {
+        return mobs;
+    } else {
+        int midpoint = (mobs.size() - 1) / 2;
+        int sizeL = midpoint + 1;
+        int sizeR = midpoint + (mobs.size() % 2 == 0 ? 1 : 0);
+
+        std::vector<Mob*> left, right;
+
+        for (int i = 0; i < sizeL; i++) {
+            left[i] = mobs[i];
+        }
+
+        for (int i = 0; i < sizeR; i++) {
+            right[i] = mobs[sizeL + i];
+        }
+
+        left = SortMobs(left);
+        right = SortMobs(right);
+
+        merged = MergeMobs(left, right);
+    }
+
+    return merged;
+}
+
+std::vector<Mob*> Renderer::MergeMobs(const std::vector<Mob*>& left, const std::vector<Mob*>& right) {
+    std::vector<Mob*> merged;
+
+    int indexLeft = 0;
+    int indexRight = 0;
+    int indexMerged = 0;
+
+    while ((indexLeft < left.size()) && (indexRight < right.size())) {
+        if (left[indexLeft]->DSTRect().y > right[indexRight]->DSTRect().y) {
+            merged[indexMerged] = left[indexLeft];
+            indexLeft++;
+            indexMerged++;
+        } else {
+            merged[indexMerged] = right[indexRight];
+            indexRight++;
+            indexMerged++;
+        }
+    }
+
+    while (indexLeft < left.size()) {
+        merged[indexMerged] = left[indexLeft];
+        indexLeft++;
+        indexMerged++;
+    }
+
+    while (indexRight < right.size()) {
+        merged[indexMerged] = right[indexRight];
+        indexRight++;
+        indexMerged++;
+    }
+
+    return merged;
 }

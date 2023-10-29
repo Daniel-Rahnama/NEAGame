@@ -7,7 +7,6 @@
 #include "player.hpp"
 
 #include "SDL2/SDL.h"
-#include "SDL2/SDL_ttf.h"
 #include "SDL2/SDL_image.h"
 
 #include <string>
@@ -41,6 +40,17 @@ public:
     SDL_Texture* CreateTexture(const std::string& spritesheet);
 
 private:
+    /// @brief Merge sort to sort Mobs based on y-coordinate
+    /// @param mobs Array of mobs to be sorted
+    /// @return Sorted array of mobs
+    std::vector<Mob*> SortMobs(const std::vector<Mob*>& mobs);
+
+    /// @brief Merges mobs for merge sort algorithm
+    /// @param left Left array of Mobs
+    /// @param right Right array of Mobs
+    /// @return Merged array of mobs
+    std::vector<Mob*> MergeMobs(const std::vector<Mob*>& left, const std::vector<Mob*>& right);
+
     /// @brief SDL Window
     SDL_Window *window;
 

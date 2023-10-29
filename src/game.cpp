@@ -44,6 +44,11 @@ Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& 
     }
 
     mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 200, ((camera.h - 128) / 2), 128, 128 }, 1));
+
+    for (Mob*& m : mobs) {
+        m->route = GeneratePath(m);
+        m->framesSinceRouteUpdate = rand() % 60;
+    }
 }
 
 Game::~Game() {
@@ -118,25 +123,125 @@ void Game::Update(bool& running, uint16_t& FrameCount) {
     }
 }
 
+// needs to handle at target node, no route, and also when creating a mob the route must be set and then a random framessincerouteupdate set to ensure that it doesnt update at the same time as all other mobs
+
 void Game::UpdateState() {
     std::vector<std::future<void>> futures;
 
     for (Mob*& mob : mobs) {
-        futures.push_back(std::async(std::launch::async, [&mob, this]() -> void {
-            int x = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
-            int y = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
-
-            mob->state = ((sqrt((x * x) + (y * y)) > 128) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ((mob->Cooldown() <= 0) ? ATTACKING : 0)));
-
-            if (abs(x) > abs(y)) {
-                mob->state = (x > 0) ? (mob->state & ~(0x2) | (0x1)) : (mob->state | (0x3));
+        futures.emplace_back(std::async(std::launch::async, [&mob, this]() -> void {
+            if (mob->framesSinceRouteUpdate > 60) {
+                mob->route = GeneratePath(mob);
+                mob->framesSinceRouteUpdate = 0;
             } else {
-                mob->state = (y > 0) ? (mob->state & ~(0x3)) : (mob->state & ~(0x1) | (0x2));
+                mob->framesSinceRouteUpdate++;
             }
+
+            SDL_Point currentNode(mob->DSTRect().x / 64, mob->DSTRect().y / 64);
+            SDL_Point nextNode;
+            SDL_Point targetNode(player->DSTRect().x / 64, player->DSTRect().y / 64);
+
+            for (int i = 0; i < mob->route.size(); i++) {
+                if ((currentNode.x == mob->route[i].x) && (currentNode.y == mob->route[i].y)) {
+                    if ((mob->route[i].x == targetNode.x) && (mob->route[i].y == targetNode.y)) {
+                        int x = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
+                        int y = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
+
+                        mob->state = ((sqrt((x * x) + (y * y)) > 128) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ((mob->Cooldown() <= 0) ? ATTACKING : 0)));
+                        break;
+                    }
+                    
+                    nextNode = mob->route[i + 1];
+                    break;
+                }
+            }
+
+            if (nextNode.x - currentNode.x == -1) (mob->state & ~(0x2) | (0x1));
+            else if (nextNode.x - currentNode.x == 1) ((mob->state | (0x3)));
+            else if (nextNode.y - currentNode.y == -1) (mob->state & ~(0x3));
+            else if (nextNode.y - currentNode.y == 1) (mob->state & ~(0x1) | (0x2));
+
         }));
     }
 
     for (std::future<void>& future : futures) future.wait();
+}
+
+std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
+    std::vector<std::vector<unsigned int>> score;
+    std::vector<std::vector<unsigned int>> hScore;
+    std::vector<std::vector<bool>> visited;
+    std::vector<std::vector<SDL_Point>> routeToNode;
+
+    for (int x = 0; x < tileMap.GetWidth(); x++) {
+        for (int y = 0; y < tileMap.GetHeight(); y++) {
+            score[x][y] = -1;
+            hScore[x][y] = -1;
+            visited[x][y] = false;
+        }
+    }
+
+    SDL_Point startNode(mob->DSTRect().w / 64, mob->DSTRect().h / 64);
+    SDL_Point targetNode(player->DSTRect().w / 64, player->DSTRect().h / 64);
+
+    score[startNode.x][startNode.y] = 0;
+    hScore[startNode.x][startNode.y] = 0;
+
+    while (true) {
+        SDL_Point currentNode = LowestScoreNode(hScore, visited);
+        visited[currentNode.x][currentNode.y] = true;
+
+        std::vector<SDL_Point> neighbours;
+        neighbours.emplace_back(SDL_Point(currentNode.x - 1, currentNode.y));
+        neighbours.emplace_back(SDL_Point(currentNode.x + 1, currentNode.y));
+        neighbours.emplace_back(SDL_Point(currentNode.x, currentNode.y - 1));
+        neighbours.emplace_back(SDL_Point(currentNode.x, currentNode.y + 1));
+
+        for (SDL_Point nextNode : neighbours) {
+            if (!visited[nextNode.x][nextNode.y] && !tileMap.GetTileLayer(mob->Layer())->GetTileId(nextNode.x, nextNode.y)) {
+                int newScore = score[currentNode.x][currentNode.y] + 1;
+                if (newScore < score[nextNode.x][nextNode.y]) {
+                    score[nextNode.x][nextNode.y] = newScore;
+                    hScore[nextNode.x][nextNode.y] = newScore + (abs(nextNode.x - targetNode.x) + abs(nextNode.y - targetNode.y));
+                    routeToNode[nextNode.x][nextNode.y] = currentNode;
+                }
+            }
+        }
+
+        if ((currentNode.x == targetNode.x) && (targetNode.y == targetNode.y)) {
+            std::vector<SDL_Point> route;
+            currentNode = targetNode;
+
+            while (true) {
+                route.emplace(route.begin(), routeToNode[currentNode.x][currentNode.y]);
+
+                if ((currentNode.x == startNode.x) && (currentNode.y == startNode.y)) {
+                    return route;
+                } else {
+                    currentNode = routeToNode[currentNode.x][currentNode.y];
+                }
+            }
+        }
+
+        SDL_Point lowestScoreNode = LowestScoreNode(hScore, visited);
+        if (score[lowestScoreNode.x][lowestScoreNode.y] == (unsigned int)(-1)) {
+            return std::vector<SDL_Point>();
+        }
+    }
+}
+
+SDL_Point Game::LowestScoreNode(const std::vector<std::vector<unsigned int>>& hScore, const std::vector<std::vector<bool>>& visited) {
+    SDL_Point result;
+    
+    for (int x = 0; x < tileMap.GetWidth(); x++) {
+        for (int y = 0; y < tileMap.GetHeight(); y++) {
+            if (!visited[x][y] && (hScore[x][y] < hScore[result.x][result.y])) {
+                result = SDL_Point(x, y);
+            }
+        }
+    }
+    
+    return result;
 }
 
 void Game::LoadMap() {
