@@ -1,10 +1,9 @@
 #include "mob.hpp"
 
-#include <iostream>
 #include <cassert>
 
-Mob::Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsigned int& layer)
-    : Entity(spritesheet, {0, 512, 64, 64}, dstrect, layer), state(state) {
+Mob::Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsigned int& layer, Stats stats)
+    : Entity(spritesheet, {0, 512, 64, 64}, dstrect, layer), state(state), stats(stats) {
     if (!((state ^ UP) & 0x3)) srcrect.y = 512;
     else if (!((state ^ LEFT) & 0x3)) srcrect.y = 576;
     else if (!((state ^ DOWN) & 0x3)) srcrect.y = 640;
@@ -16,10 +15,9 @@ Mob::Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsig
     hitbox = { dstrect.x + 32, dstrect.y + 96, dstrect.w - 64, dstrect.h - 96 };
 
     health = 100;
+    stamina = health;
+
     cooldown = 0;
-    
-    damage = 1;
-    delay = 20;
 }
 
 void Mob::UpdateAnimation(const int& FrameCount) {
@@ -57,7 +55,7 @@ void Mob::UpdateAnimation(const int& FrameCount) {
 
                 state &= ~ATTACKING;
 
-                cooldown = delay;
+                cooldown = stats.delay;
 
                 srcrect.w = 64;
                 srcrect.h = 64;
@@ -89,6 +87,8 @@ void Mob::UpdateAnimation(const int& FrameCount) {
             dstrect.y -= 128;
             dstrect.w = 384;
             dstrect.h = 384;
+
+            stamina -= stats.fatigue;
         }
     } else if (!(FrameCount % 4)) {
         if (state & MOVING) {
@@ -124,8 +124,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
     if (health > 0) {
         if (state & MOVING) {
             if (!((state ^ UP) & 0x3)) {
-                dstrect.y -= 4;
-                hitbox.y -= 4;
+                dstrect.y -= stats.speed;
+                hitbox.y -= stats.speed;
 
                 if (dstrect.y < ((srcrect.y >= 1344) ? -128 : 0)) {
                     dstrect.y = ((srcrect.y >= 1344) ? -128 : 0);
@@ -138,6 +138,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                         if (Collision(e)) {
                             dstrect.y = (e->DSTRect().y - (e->DSTRect().h - hitbox.h)) - ((srcrect.y >= 1344) ? 128 : 0);
                             hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
+                            dstrect.x -= stats.speed;
+                            hitbox.x -= stats.speed;
                             break;
                         }
                     }
@@ -153,8 +155,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 }
 
             } else if (!((state ^ LEFT) & 0x3)) {
-                dstrect.x -= 4;
-                hitbox.x -= 4;
+                dstrect.x -= stats.speed;
+                hitbox.x -= stats.speed;
 
                 if (dstrect.x < ((srcrect.y >= 1344) ? -128 : 0)) {
                     dstrect.x = ((srcrect.y >= 1344) ? -128 : 0);
@@ -167,6 +169,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                         if (Collision(e)) {
                             dstrect.x = (e->DSTRect().x + 32) - ((srcrect.y >= 1344) ? 128 : 0);
                             hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
+                            dstrect.y -= stats.speed;
+                            hitbox.y -= stats.speed;
                             break;
                         }
                     }
@@ -182,8 +186,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 }
 
             } else if (!((state ^ DOWN) & 0x3)) {
-                dstrect.y += 4;
-                hitbox.y += 4;
+                dstrect.y += stats.speed;
+                hitbox.y += stats.speed;
 
                 if (dstrect.y > camera.h - dstrect.h + ((srcrect.y >= 1344) ? 128 : 0)) {
                     dstrect.y = camera.h - dstrect.h + ((srcrect.y >= 1344) ? 128 : 0);
@@ -196,6 +200,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                         if (Collision(e)) {
                             dstrect.y = (e->DSTRect().y - dstrect.h) + ((srcrect.y >= 1344) ? 128 : 0);
                             hitbox.y = dstrect.y + ((srcrect.y >= 1344) ? 224 : 96);
+                            dstrect.x -= stats.speed;
+                            hitbox.x -= stats.speed;
                             break;
                         }
                     }
@@ -211,8 +217,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                 }
 
             } else if (!((state ^ RIGHT) & 0x3)) {
-                dstrect.x += 4;
-                hitbox.x += 4;
+                dstrect.x += stats.speed;
+                hitbox.x += stats.speed;
 
                 if (dstrect.x > camera.w - dstrect.w + ((srcrect.y >= 1344) ? 128 : 0)) {
                     dstrect.x = camera.w - dstrect.w + ((srcrect.y >= 1344) ? 128 : 0);
@@ -225,6 +231,8 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
                         if (Collision(e)) {
                             dstrect.x = (e->DSTRect().x - (e->DSTRect().w + 32)) - ((srcrect.y >= 1344) ? 128 : 0);
                             hitbox.x = dstrect.x + ((srcrect.y >= 1344) ? 160 : 32);
+                            dstrect.y -= stats.speed;
+                            hitbox.y -= stats.speed;
                             break;
                         }
                     }
@@ -243,38 +251,38 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
         if (state & ATTACKING) {
             if (!((state ^ UP) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 128, 256, 128 };
-                EvaluatePlayerCollision(swordHitbox, damage);
+                EvaluatePlayerCollision(swordHitbox, stats.damage);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             } else if (!((state ^ LEFT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 160, hitbox.y - 96, 256, 128 };
-                EvaluatePlayerCollision(swordHitbox, damage);
+                EvaluatePlayerCollision(swordHitbox, stats.damage);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             } else if (!((state ^ DOWN) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 32, 256, 128 };
-                EvaluatePlayerCollision(swordHitbox, damage);
+                EvaluatePlayerCollision(swordHitbox, stats.damage);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             } else if (!((state ^ RIGHT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 32, hitbox.y - 96, 256, 128 };
-                EvaluatePlayerCollision(swordHitbox, damage);
+                EvaluatePlayerCollision(swordHitbox, stats.damage);
                 for (Mob*& m : mobs) {
                     if (m == this) continue;
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             }
@@ -283,6 +291,13 @@ void Mob::Update(std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>&
         health = 0;
     }
     cooldown--;
+
+    if (cooldown <= 0) {
+        stamina += stats.regen;
+        if (stamina > health) {
+            stamina = health;
+        };
+    }
 }
 
 const double& Mob::Health() const {
@@ -297,7 +312,11 @@ const int& Mob::Cooldown() const {
     return cooldown;
 }
 
-bool Mob::Collision(Entity*& e) {
+const double& Mob::Stamina() const {
+    return stamina;
+}
+
+bool Mob::Collision(Entity *&e) {
     return ((hitbox.x < e->DSTRect().x + e->DSTRect().w) && (hitbox.x + hitbox.w > e->DSTRect().x)
             && (hitbox.y < e->DSTRect().y + e->DSTRect().h) && (hitbox.y + hitbox.h > e->DSTRect().y));
 }

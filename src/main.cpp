@@ -1,7 +1,6 @@
 #include "main.hpp"
 
 #include <windows.h>
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -13,18 +12,39 @@
 int SDL_main(int argc, char* argv[]) {
     std::string playerUsername;
     std::string playerSpritesheet;
+    std::string mobSpritesheet;
+    std::string playerStatsAddress;
+    std::string mobStatsAddress;
+    std::string difficultyLevel;
+    std::string localLeaderboard;
+    std::string gameMission;
 
     for (int i = 1; i < argc; i += 2) {
-        if (strcmp(argv[i], "-u") == 0) {
+        if (strcmp(argv[i], "-username") == 0) {
             playerUsername = argv[i+1];
         }
-        if (strcmp(argv[i], "-s") == 0) {
+        if (strcmp(argv[i], "-playerSpritesheet") == 0) {
             playerSpritesheet = argv[i+1];
+        }
+        if (strcmp(argv[i], "-mobSpritesheet") == 0) {
+            mobSpritesheet = argv[i+1];
+        }
+        if (strcmp(argv[i], "-playerStats") == 0) {
+            playerStatsAddress = argv[i+1];
+        }
+        if (strcmp(argv[i], "-mobStats") == 0) {
+            mobStatsAddress = argv[i+1];
+        }
+        if (strcmp(argv[i], "-difficultyLevel") == 0) {
+            difficultyLevel = argv[i+1];
+        }
+        if (strcmp(argv[i], "-gameMission") == 0) {
+            gameMission = argv[i+1];
         }
     }
 
     try {
-        const std::unique_ptr<AppData> appdata = std::make_unique<AppData>(playerUsername, playerSpritesheet);
+        const std::unique_ptr<AppData> appdata = std::make_unique<AppData>(playerUsername, playerSpritesheet, mobSpritesheet, playerStatsAddress, mobStatsAddress, difficultyLevel, gameMission);
         const std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>(*appdata);
         const std::unique_ptr<Controller> controller = std::make_unique<Controller>();
         const std::unique_ptr<Mixer> mixer = std::make_unique<Mixer>(*appdata);

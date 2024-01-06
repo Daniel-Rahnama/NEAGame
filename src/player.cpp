@@ -1,14 +1,12 @@
 #include "player.hpp"
 #include "mob.hpp"
 
-#include <iostream>
-
 void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entities, std::vector<Mob*>& mobs, SDL_Rect& camera) {
     if (health > 0) {
         if (state & MOVING) {
             if (!((state ^ UP) & 0x3)) {
-                dstrect.y -= 4;
-                hitbox.y -= 4;
+                dstrect.y -= stats.speed;
+                hitbox.y -= stats.speed;
 
                 if (dstrect.y < ((srcrect.y >= 1344) ? -128 : 0)) {
                     dstrect.y = ((srcrect.y >= 1344) ? -128 : 0);
@@ -46,8 +44,8 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
                 }
 
             } else if (!((state ^ LEFT) & 0x3)) {
-                dstrect.x -= 4;
-                hitbox.x -= 4;
+                dstrect.x -= stats.speed;
+                hitbox.x -= stats.speed;
 
                 if (dstrect.x < ((srcrect.y >= 1344) ? -128 : 0)) {
                     dstrect.x = ((srcrect.y >= 1344) ? -128 : 0);
@@ -85,8 +83,8 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
                 }
 
             } else if (!((state ^ DOWN) & 0x3)) {
-                dstrect.y += 4;
-                hitbox.y += 4;
+                dstrect.y += stats.speed;
+                hitbox.y += stats.speed;
 
                 if (dstrect.y > camera.h - dstrect.h + ((srcrect.y >= 1344) ? 128 : 0)) {
                     dstrect.y = camera.h - dstrect.h + ((srcrect.y >= 1344) ? 128 : 0);
@@ -124,8 +122,8 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
                 }
 
             } else if (!((state ^ RIGHT) & 0x3)) {
-                dstrect.x += 4;
-                hitbox.x += 4;
+                dstrect.x += stats.speed;
+                hitbox.x += stats.speed;
 
                 if (dstrect.x > camera.w - dstrect.w + ((srcrect.y >= 1344) ? 128 : 0)) {
                     dstrect.x = camera.w - dstrect.w + ((srcrect.y >= 1344) ? 128 : 0);
@@ -168,28 +166,28 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 128, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             } else if (!((state ^ LEFT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 160, hitbox.y - 96, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             } else if (!((state ^ DOWN) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 96, hitbox.y - 32, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             } else if (!((state ^ RIGHT) & 0x3)) {
                 SDL_Rect swordHitbox = { hitbox.x - 32, hitbox.y - 96, 256, 128 };
                 for (Mob*& m : mobs) {
                     if (Collision(m, swordHitbox)) {
-                        m->Hit(damage);
+                        m->Hit(stats.damage);
                     }
                 }
             }
@@ -198,6 +196,13 @@ void Player::Update(AppData& appdata, std::vector<std::vector<Entity*>>& entitie
         health = 0;
     }
     cooldown--;
+
+    if (cooldown <= 0) {
+        stamina += stats.regen;
+        if (stamina > health) {
+            stamina = health;
+        }
+    }
 }
 
 bool Player::EvaluateCollision(const SDL_Rect& rect, const int& damage) {

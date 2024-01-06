@@ -4,7 +4,8 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:/vcpkg/installed/x64-mingw-dynamic/include"
+                "C:/vcpkg/installed/x64-mingw-dynamic/include",
+                "${workspaceFolder}/tests/googletest-main/googletest-main/googletest/include"
             ],
             "defines": [
                 "_DEBUG",

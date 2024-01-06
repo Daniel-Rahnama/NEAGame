@@ -1,6 +1,5 @@
 #include "game.hpp"
 
-#include <iostream>
 #include <thread>
 #include <vector>
 #include <cassert>
@@ -14,42 +13,8 @@
 #include "mob.hpp"
 
 Game::Game(AppData& appdata, Renderer& renderer, Controller& controller, Mixer& mixer)
-    : appdata(appdata), renderer(renderer), controller(controller), mixer(mixer) {
-    LoadMap();
-    
-    camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
-    camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
-    
-    SDL_Texture* t = renderer.CreateTexture(appdata.PlayerSpritesheet());
-
-    player = new Player(t, UP, { ((camera.w - 128) / 2), ((camera.h - 128) / 2), 128, 128 }, 1);
-
-    camera.x = player->DSTRect().x - ((appdata.Width() - player->DSTRect().w) / 2);
-
-    if (camera.x < 0) {
-        camera.x = 0;
-    }
-
-    if (camera.x > camera.w - appdata.Width()) {
-        camera.x = camera.w - appdata.Width();
-    }
-
-    camera.y = player->DSTRect().y - ((appdata.Height() - player->DSTRect().h) / 2);
-
-    if (camera.y < 0) {
-        camera.y = 0;
-    }
-
-    if (camera.y > camera.h - appdata.Height()) {
-        camera.y = camera.h - appdata.Height();
-    }
-
-    mobs.push_back(new Mob(t, UP, { ((camera.w - 128) / 2) + 500, ((camera.h - 128) / 2), 128, 128 }, 1));
-
-    for (Mob*& m : mobs) {
-        m->route = GeneratePath(m);
-        m->framesSinceRouteUpdate = rand() % 60;
-    }
+    : appdata(appdata), renderer(renderer), controller(controller), mixer(mixer) { 
+    LoadMission();
 }
 
 Game::~Game() {
@@ -71,6 +36,9 @@ void Game::Run() {
     uint32_t FrameEnd;
 
     bool running = true;
+    bool won = false;
+
+    uint64_t GameStart = SDL_GetTicks64();
 
     while (running) {
         FrameStart = SDL_GetTicks();
@@ -79,7 +47,7 @@ void Game::Run() {
 
         UpdateState();
 
-        Update(running, FrameCount);
+        Update(running, won, FrameCount);
 
         renderer.Render(entities, mobs, player, camera);
 
@@ -99,14 +67,45 @@ void Game::Run() {
             SDL_Delay(TargetFrameDuration - FrameDuration);
         }
     }
+
+    if (won && appdata.DifficultyLevel() != "") {
+        uint64_t GameDuration = (SDL_GetTicks64() - GameStart) / 1000;
+
+        if (localLeaderboard != "") {
+            int time;
+
+            std::fstream localLeaderboardFile(localLeaderboard, std::fstream::in);
+            Json::Value localLeaderboardJson;
+
+
+            if (localLeaderboardFile.is_open()) {
+                localLeaderboardFile >> localLeaderboardJson;
+                localLeaderboardFile.close();
+            } else {
+                localLeaderboardFile.close();
+                localLeaderboardJson["time1"] = -1;
+                localLeaderboardJson["time2"] = -1;
+                localLeaderboardJson["time3"] = -1;
+            }
+
+            if (GameDuration < localLeaderboardJson["time" + appdata.DifficultyLevel()].asInt()) {
+                localLeaderboardJson["time" + appdata.DifficultyLevel()] = GameDuration;
+            }
+            
+            localLeaderboardFile.open(localLeaderboard, std::fstream::out | std::fstream::trunc);
+            localLeaderboardFile << localLeaderboardJson;
+            localLeaderboardFile.close();
+        }
+    }
 }
 
-void Game::Update(bool& running, uint16_t& FrameCount) {
+void Game::Update(bool& running, bool& won, uint16_t& FrameCount) {
     player->UpdateAnimation(FrameCount);
     player->Update(appdata, entities, mobs, camera);
 
     if (player->state & DEAD) {
         running = false;
+        won = false;
     }
 
     using namespace std::placeholders;
@@ -120,18 +119,20 @@ void Game::Update(bool& running, uint16_t& FrameCount) {
         if (m->state & DEAD) {
             delete m;
             mobs.erase(std::remove(mobs.begin(), mobs.end(), m), mobs.end());
+            if (mobs.size() == 0) {
+                running = false;
+                won = true;
+            }
         }
     }
 }
-
-// needs to handle at target node, no route, and also when creating a mob the route must be set and then a random framessincerouteupdate set to ensure that it doesnt update at the same time as all other mobs
 
 void Game::UpdateState() {
     std::vector<std::future<void>> futures;
 
     for (Mob*& mob : mobs) {
-        futures.emplace_back(std::async(std::launch::async, [&mob, this]() -> void {
-            if (mob->framesSinceRouteUpdate > 60) {
+        futures.push_back(std::async(std::launch::async, [&mob, this]() -> void {
+            if (mob->framesSinceRouteUpdate > 10) {
                 mob->route = GeneratePath(mob);
                 mob->framesSinceRouteUpdate = 0;
             } else {
@@ -139,34 +140,55 @@ void Game::UpdateState() {
             }
 
             SDL_Point currentNode(mob->DSTRect().x / 64, mob->DSTRect().y / 64);
-            SDL_Point nextNode;
             SDL_Point targetNode(player->DSTRect().x / 64, player->DSTRect().y / 64);
 
-            for (int i = 0; i < mob->route.size(); i++) {
-                if ((currentNode.x == mob->route[i].x) && (currentNode.y == mob->route[i].y)) {
-                    if ((mob->route[i].x == targetNode.x) && (mob->route[i].y == targetNode.y)) {
-                        int x = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
-                        int y = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
+            SDL_Point nextNode(0, 0);
 
-                        mob->state = ((sqrt((x * x) + (y * y)) > 128) ? (mob->state | MOVING) : ((mob->state & ~MOVING) | ((mob->Cooldown() <= 0) ? ATTACKING : 0)));
-                        break;
-                    }
-                    
-                    nextNode = mob->route[i + 1];
-                    break;
+            bool nextNodeFound = false;
+
+            for (int i = 0; i < mob->route.size(); i++) {
+                if (currentNode.x == mob->route[i].x && currentNode.y == mob->route[i].y) {
+                    nextNode.x = mob->route[i+1].x;
+                    nextNode.y = mob->route[i+1].y;
+                    nextNodeFound = true;
                 }
             }
 
-            if (nextNode.x - currentNode.x == -1) (mob->state & ~(0x2) | (0x1));
-            else if (nextNode.x - currentNode.x == 1) (mob->state | (0x3));
-            else if (nextNode.y - currentNode.y == -1) (mob->state & ~(0x3));
-            else if (nextNode.y - currentNode.y == 1) (mob->state & ~(0x1) | (0x2));
+            if ((abs(currentNode.x - targetNode.x) <= 3 && abs(currentNode.y - targetNode.y) <= 3)
+                || (nextNodeFound == false)) {
+                int dX = (mob->DSTRect().x + (mob->DSTRect().w / 2)) - (player->DSTRect().x + (player->DSTRect().w / 2));
+                int dY = (mob->DSTRect().y + (mob->DSTRect().h / 2)) - (player->DSTRect().y + (player->DSTRect().h / 2));
 
-            mob->state |= MOVING;
+                if (abs(dX) >= abs(dY)) { 
+                    if (dX > 0) mob->state = (mob->state & ~(0x2) | (0x1));
+                    else mob->state = (mob->state | (0x3));
+                } else {
+                    if (dY > 0) mob->state = (mob->state & ~(0x3));
+                    else mob->state = (mob->state & ~(0x1) | (0x2));
+                }
+
+                if (abs(dX) <= 64 && abs(dY) <= 64) {
+                    mob->state |= (mob->Cooldown() <= 0 && mob->Stamina() >= 20) ? ATTACKING : 0;
+                }
+
+                if (abs(dX) <= 32 && abs(dY) <= 32) {
+                    mob->state &= ~MOVING;
+                } else {
+                    mob->state |= MOVING;
+                }
+
+            } else {
+                if (currentNode.x - nextNode.x == 1) mob->state = (mob->state & ~(0x2) | (0x1)); //LEFT
+                if (currentNode.x - nextNode.x == -1) mob->state = (mob->state | (0x3)); //RIGHT
+                if (currentNode.y - nextNode.y == 1) mob->state = (mob->state & ~(0x3)); //UP
+                if (currentNode.y - nextNode.y == -1) mob->state = (mob->state & ~(0x1) | (0x2)); //DOWN
+
+                mob->state |= MOVING;    
+            }
         }));
-    }
 
-    for (std::future<void>& future : futures) future.wait();
+        for (std::future<void>& future : futures) future.wait();
+    }
 }
 
 std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
@@ -214,10 +236,11 @@ std::vector<SDL_Point> Game::GeneratePath(Mob*& mob) {
             std::vector<SDL_Point> route;
             currentNode = targetNode;
 
-            while (true) {
+            for (int i = 0; ; i++) {
                 route.emplace(route.begin(), routeToNode[currentNode.x][currentNode.y]);
 
-                if ((currentNode.x == startNode.x) && (currentNode.y == startNode.y)) {
+                if (i == 16 || ((currentNode.x == startNode.x) && (currentNode.y == startNode.y))) {
+                    route.erase(route.begin());
                     return route;
                 } else {
                     currentNode = routeToNode[currentNode.x][currentNode.y];
@@ -248,8 +271,58 @@ SDL_Point Game::LowestScoreNode(const std::vector<std::vector<unsigned int>>& hS
     return result;
 }
 
-void Game::LoadMap() {
-    tileMap.ParseFile(appdata.Resources() + "/tilemaps/map.tmx");
+void Game::LoadMission() {
+    std::fstream missionFile(appdata.GameMissionAddress(), std::fstream::in);
+
+    if (!missionFile.is_open()) {
+        throw "Unable to open Mission file";
+    }
+
+    Json::Value missionJson;
+    missionFile >> missionJson;
+    missionFile.close();
+
+    LoadMap(missionJson["Map Address"].asString());
+
+    SDL_Texture* playerTexture = renderer.CreateTexture(appdata.PlayerSpritesheet());
+    SDL_Texture* mobTexture = renderer.CreateTexture(appdata.MobSpritesheet());
+        
+    camera.w = tileMap.GetWidth() * tileMap.GetTileWidth() * 2;
+    camera.h = tileMap.GetHeight() * tileMap.GetTileHeight() * 2;
+
+    player = new Player(playerTexture, (int)NULL, { missionJson["Player"]["x"].asInt() * 64, missionJson["Player"]["y"].asInt() * 64, 128, 128 }, 1, appdata.PlayerStats());
+
+    camera.x = player->DSTRect().x - ((appdata.Width() - player->DSTRect().w) / 2);
+
+    if (camera.x < 0) {
+        camera.x = 0;
+    }
+
+    if (camera.x > camera.w - appdata.Width()) {
+        camera.x = camera.w - appdata.Width();
+    }
+
+    camera.y = player->DSTRect().y - ((appdata.Height() - player->DSTRect().h) / 2);
+
+    if (camera.y < 0) {
+        camera.y = 0;
+    }
+
+    if (camera.y > camera.h - appdata.Height()) {
+        camera.y = camera.h - appdata.Height();
+    }
+
+    for (Json::Value& m : missionJson["Mobs"]) {
+        mobs.push_back(new Mob(mobTexture, (int)NULL, { m["x"].asInt() * 64, m["y"].asInt() * 64, 128, 128 }, 1, appdata.MobStats()));
+        mobs.back()->route = GeneratePath(mobs.back());
+        mobs.back()->framesSinceRouteUpdate = rand() % 10;
+    }
+
+    localLeaderboard = missionJson["Local Leaderboard Address"].asString();
+}
+
+void Game::LoadMap(const std::string& mapAddress) {
+    tileMap.ParseFile(mapAddress);
 
     if (tileMap.HasError()) {
         throw (tileMap.GetErrorCode() + ": " + tileMap.GetErrorText()).c_str();

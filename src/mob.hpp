@@ -32,7 +32,8 @@ public:
     /// @param state State of the mob
     /// @param dstrect Destination rectangle of the entity on the screen
     /// @param layer Layer the mob exists on
-    Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsigned int& layer);
+    /// @param stats Stats of the mob
+    Mob(SDL_Texture* spritesheet, uint16_t state, SDL_Rect dstrect, const unsigned int& layer, Stats stats);
 
     /// @brief Animates the mob
     /// @param FrameCount The frame number since the last full second
@@ -63,6 +64,10 @@ public:
     /// @return Value of the cooldown
     const int& Cooldown() const;
 
+    /// @brief Returns the stamina
+    /// @return Value of the stamina
+    const double& Stamina() const;
+
     /// @brief Route to player
     std::vector<SDL_Point> route;
 
@@ -78,19 +83,19 @@ protected:
     /// @param m Mob to check collision with
     /// @param r Rectangle to check collision with
     /// @return 1 if collision, 0 if no collision
-    bool Collision(Mob*& m, const SDL_Rect& r);
+    bool static Collision(Mob*& m, const SDL_Rect& r);
 
     /// @brief Mob health out 100.00
     double health;
 
+    /// @brief Stamina used by attacks
+    double stamina;
+
     /// @brief Mob attack cooldown
-    int cooldown;
+    int cooldown;    
 
-    /// @brief Delay after each attack
-    int delay;
-
-    /// @brief Damage dealt by each attack
-    int damage;
+    /// @brief Mob's stats
+    Stats stats;
 };
 
 #endif /* MOB_HPP */

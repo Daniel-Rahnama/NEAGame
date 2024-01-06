@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.20.0)
+cmake_minimum_required(VERSION 3.27.4)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_BUILD_TYPE DEBUG)
+set(CMAKE_BUILD_TYPE RELEASE)
 
 project(Game)
 
@@ -51,3 +51,5 @@ find_package(jsoncpp CONFIG REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE JsonCpp::JsonCpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE pthread)
+
+# add_subdirectory(tests)

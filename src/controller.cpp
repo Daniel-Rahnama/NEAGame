@@ -8,7 +8,7 @@ void Controller::HandleInput(bool& running, Player*& player) {
             running = false;
         } else if (event.type == SDL_MOUSEBUTTONDOWN) {
             switch (event.button.button) {
-                case SDL_BUTTON_LEFT: player->state |= ((player->Cooldown() <= 0) ? ATTACKING : 0); break;
+                case SDL_BUTTON_LEFT: player->state |= ((player->Cooldown() <= 0 && player->Stamina() >= 20) ? ATTACKING : 0); break;
                 case SDL_BUTTON_RIGHT: player->state |= MOVING; break;
             }
         } else if (event.type == SDL_MOUSEBUTTONUP) {
@@ -29,7 +29,7 @@ void Controller::HandleInput(bool& running, Player*& player) {
         } else if (event.type == SDL_KEYDOWN) {
             switch (event.key.keysym.sym) {
                 case SDLK_ESCAPE: running = false; break;
-                case SDLK_SPACE: player->state |= ((player->Cooldown() <= 0) ? ATTACKING : 0); break;
+                case SDLK_SPACE: player->state |= ((player->Cooldown() <= 0 && player->Stamina() >= 20) ? ATTACKING : 0); break;
                 case SDLK_UP:
                     player->state = (player->state & ~(0x3)) | MOVING;
                     break;

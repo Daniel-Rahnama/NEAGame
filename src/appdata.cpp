@@ -3,11 +3,9 @@
 #include <filesystem>
 #include <Windows.h>
 #include <cstring>
-#include <iostream>
 
-AppData::AppData(const std::string& playerUsername, const std::string& playerSpritesheet) 
-    : playerUsername(playerUsername), playerSpritesheet(playerSpritesheet) {
-
+AppData::AppData(const std::string& playerUsername, const std::string& playerSpritesheet, const std::string& mobSpritesheet, const std::string& playerStatsAddress, const std::string& mobStatsAddress, const std::string& difficultyLevel, const std::string& gameMissionAddress) 
+    : playerUsername(playerUsername), playerSpritesheet(playerSpritesheet), mobSpritesheet(mobSpritesheet), difficultyLevel(difficultyLevel), gameMissionAddress(gameMissionAddress) {
 
     appdata = (std::string)getenv("APPDATA") + "/NEAGame";
 
@@ -50,13 +48,54 @@ AppData::AppData(const std::string& playerUsername, const std::string& playerSpr
         settingsJSON["targetFPS"] = targetFPS;
         settingsJSON["resources"] = resources;
 
+        std::filesystem::create_directory(appdata);
+
         settingsFile.open(appdata + "/settings.json", std::fstream::trunc | std::fstream::out);
         settingsFile << settingsJSON;
         settingsFile.close();
     }    
     
     if (playerUsername == "") this->playerUsername = "Default User";
-    if (playerSpritesheet == "") this->playerSpritesheet = resources + "/sprites/c1.png";
+    if (playerSpritesheet == "") this->playerSpritesheet = resources + "/sprites/player.png";
+    if (mobSpritesheet == "") this->mobSpritesheet = resources + "/sprites/mob.png";
+
+    if (playerStatsAddress != "") {
+        std::fstream playerStatsFile(playerStatsAddress, std::fstream::in);
+        Json::Value playerStatsJson;
+        playerStatsFile >> playerStatsJson;
+        playerStatsFile.close();
+
+        playerStats.speed = playerStatsJson["speed"].asInt();
+        playerStats.damage = playerStatsJson["damage"].asInt();
+        playerStats.delay = playerStatsJson["delay"].asInt();
+        playerStats.fatigue = playerStatsJson["fatigue"].asInt();
+        playerStats.regen = playerStatsJson["regen"].asDouble();
+    } else {
+        playerStats.speed = 4;
+        playerStats.damage = 2;
+        playerStats.delay = 10;
+        playerStats.fatigue = 10;
+        playerStats.regen = 2;
+    }
+    
+    if (mobStatsAddress != "") {
+        std::fstream mobStatsFile(mobStatsAddress, std::fstream::in);
+        Json::Value mobStatsJson;
+        mobStatsFile >> mobStatsJson;
+        mobStatsFile.close();
+
+        mobStats.speed = mobStatsJson["speed"].asInt();
+        mobStats.damage = mobStatsJson["damage"].asInt();
+        mobStats.delay = mobStatsJson["delay"].asInt();
+        mobStats.fatigue = mobStatsJson["fatigue"].asInt();
+        mobStats.regen = mobStatsJson["regen"].asDouble();
+    } else {
+        mobStats.speed = 3;
+        mobStats.damage = 1;
+        mobStats.delay = 15;
+        mobStats.fatigue = 15;
+        mobStats.regen = 1 ;
+    }
 }
 
 const std::string& AppData::Path() const {
@@ -93,4 +132,24 @@ const std::string& AppData::PlayerUsername() const {
 
 const std::string& AppData::PlayerSpritesheet() const {
     return playerSpritesheet;
+}
+
+const std::string& AppData::MobSpritesheet() const {
+    return mobSpritesheet;
+}
+
+const Stats& AppData::PlayerStats() const {
+    return playerStats;
+}
+
+const Stats& AppData::MobStats() const {
+    return mobStats;
+}
+
+const std::string& AppData::DifficultyLevel() const {
+    return difficultyLevel;
+}
+
+const std::string &AppData::GameMissionAddress() const {
+    return gameMissionAddress;
 }

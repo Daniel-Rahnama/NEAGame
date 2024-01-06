@@ -1,7 +1,6 @@
 #include "renderer.hpp"
 
 #include <assert.h>
-#include <iostream>
 #include <algorithm>
 #include <functional>
 
@@ -75,20 +74,32 @@ void Renderer::Render(std::vector<std::vector<Entity*>>& entities, std::vector<M
             dstrects.emplace_back(SDL_Rect{ (m->hitbox.x - camera.x), (m->hitbox.y - camera.y - 80), (int)(64 * (m->Health() / 100)), 8 });
             SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 0xaa);
             SDL_RenderFillRect(renderer, &dstrects.back());
+
+            dstrects.emplace_back(SDL_Rect{ (m->hitbox.x - camera.x), (m->hitbox.y - camera.y - 84), (int)(64 * (m->Stamina() / 100)), 4 });
+            SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0x00, 0xaa);
+            SDL_RenderFillRect(renderer, &dstrects.back());
+
             SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
         }
     }
 
     if (!playerRendered) renderPlayer();
-    
+
     SDL_Rect hBarOutline { (appdata.Width() - 800) / 2, appdata.Height() - 100, 800, 50 };
     SDL_Rect hBar { (appdata.Width() - 800) / 2, appdata.Height() - 100, (int)(8 * (player->Health())), 50 };
 
+    SDL_Rect sBarOutline { hBarOutline.x, hBarOutline.y - 25, hBar.w, 25};
+    SDL_Rect sBar { sBarOutline.x, sBarOutline.y, (int)(8 * (player->Stamina())), 25 };
+    
     SDL_SetRenderDrawColor(renderer, 0xff, 0x00, 0x00, 0xaa);
     SDL_RenderFillRect(renderer, &hBar);
 
+    SDL_SetRenderDrawColor(renderer, 0xff, 0xff, 0x00, 0xaa);
+    SDL_RenderFillRect(renderer, &sBar);
+    
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xff);
     SDL_RenderDrawRect(renderer, &hBarOutline);
+    SDL_RenderDrawRect(renderer, &sBarOutline);
 
     SDL_RenderPresent(renderer);
 }
@@ -101,7 +112,7 @@ SDL_Texture* Renderer::CreateTexture(const std::string& spritesheet) {
     return SDL_CreateTextureFromSurface(renderer, IMG_Load((spritesheet).c_str()));
 }
 
-std::vector<Mob*> Renderer::SortMobs(const std::vector<Mob*>& mobs) {
+std::vector<Mob*> Renderer::SortMobs(const std::vector<Mob*>& mobs){
     std::vector<Mob*> merged;
 
     if (mobs.size() <= 1) {
@@ -109,18 +120,19 @@ std::vector<Mob*> Renderer::SortMobs(const std::vector<Mob*>& mobs) {
     } else {
         int midpoint = (mobs.size() - 1) / 2;
         int sizeL = midpoint + 1;
-        int sizeR = midpoint + (mobs.size() % 2 == 0 ? 1 : 0);
+        int sizeR = mobs.size() - sizeL;
 
-        std::vector<Mob*> left, right;
+        std::vector<Mob*> left;
+        std::vector<Mob*> right;
 
         for (int i = 0; i < sizeL; i++) {
-            left[i] = mobs[i];
+            left.push_back(mobs[i]);
         }
 
         for (int i = 0; i < sizeR; i++) {
-            right[i] = mobs[sizeL + i];
+            right.push_back(mobs[sizeL + i]);
         }
-
+        
         left = SortMobs(left);
         right = SortMobs(right);
 
@@ -135,30 +147,25 @@ std::vector<Mob*> Renderer::MergeMobs(const std::vector<Mob*>& left, const std::
 
     int indexLeft = 0;
     int indexRight = 0;
-    int indexMerged = 0;
 
     while ((indexLeft < left.size()) && (indexRight < right.size())) {
-        if (left[indexLeft]->DSTRect().y > right[indexRight]->DSTRect().y) {
-            merged[indexMerged] = left[indexLeft];
+        if (left[indexLeft]->DSTRect().y < right[indexRight]->DSTRect().y) {
+            merged.push_back(left[indexLeft]);
             indexLeft++;
-            indexMerged++;
         } else {
-            merged[indexMerged] = right[indexRight];
+            merged.push_back(right[indexRight]);
             indexRight++;
-            indexMerged++;
         }
     }
 
     while (indexLeft < left.size()) {
-        merged[indexMerged] = left[indexLeft];
+        merged.push_back(left[indexLeft]);
         indexLeft++;
-        indexMerged++;
     }
 
     while (indexRight < right.size()) {
-        merged[indexMerged] = right[indexRight];
+        merged.push_back(right[indexRight]);
         indexRight++;
-        indexMerged++;
     }
 
     return merged;

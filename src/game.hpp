@@ -34,7 +34,7 @@ public:
     /// @brief Updates the game state every frame
     /// @param running Reference to the running variable in game loop
     /// @param FrameCount Frame count reference
-    void Update(bool& running, uint16_t& FrameCount);
+    void Update(bool& running, bool& won, uint16_t& FrameCount);
 private:
     /// @brief Changes the Mob's state
     void UpdateState();
@@ -47,8 +47,11 @@ private:
     /// @brief Finds the node with lowest score for the A* pathfinding algorithm
     SDL_Point LowestScoreNode(const std::vector<std::vector<unsigned int>>& hScore, const std::vector<std::vector<bool>>& visited);
 
+    /// @brief Loads the game mission
+    void LoadMission();
+
     /// @brief Loads the game map
-    void LoadMap();
+    void LoadMap(const std::string& mapAddress);
 
     /// @brief x, y - Camera Position, w, h - Game Map Size
     SDL_Rect camera;
@@ -76,6 +79,8 @@ private:
 
     /// @brief Player
     Player* player;
+
+    std::string localLeaderboard;
 
     /// @brief Reference to the appdata
     AppData& appdata;

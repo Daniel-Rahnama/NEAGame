@@ -38,18 +38,17 @@ public:
     /// @param spritesheet Path to the spritesheet
     /// @return Pointer to the SDL texture
     SDL_Texture* CreateTexture(const std::string& spritesheet);
-
 private:
     /// @brief Merge sort to sort Mobs based on y-coordinate
     /// @param mobs Array of mobs to be sorted
     /// @return Sorted array of mobs
-    std::vector<Mob*> SortMobs(const std::vector<Mob*>& mobs);
+    std::vector<Mob*> static SortMobs(const std::vector<Mob*>& mobs);
 
     /// @brief Merges mobs for merge sort algorithm
     /// @param left Left array of Mobs
     /// @param right Right array of Mobs
     /// @return Merged array of mobs
-    std::vector<Mob*> MergeMobs(const std::vector<Mob*>& left, const std::vector<Mob*>& right);
+    std::vector<Mob*> static MergeMobs(const std::vector<Mob*>& left, const std::vector<Mob*>& right);
 
     /// @brief SDL Window
     SDL_Window *window;
